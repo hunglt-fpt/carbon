@@ -4,7 +4,7 @@ import { isBrowser } from "@carbon/utils";
 import { useFetcher } from "@remix-run/react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PropsWithChildren } from "react";
-import { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import type { AuthSession } from "../../types";
 import { path } from "../../utils/path";
@@ -13,7 +13,8 @@ import { getCarbon } from "./client";
 const CarbonContext = createContext<{
   carbon: SupabaseClient<Database> | undefined;
   accessToken: string | undefined;
-}>({ carbon: undefined, accessToken: undefined });
+  realtimeAuthSet: boolean;
+}>({ carbon: undefined, accessToken: undefined, realtimeAuthSet: false });
 
 export const CarbonProvider = ({
   children,
@@ -25,7 +26,20 @@ export const CarbonProvider = ({
   const initialLoad = useRef(true);
 
   const carbon = useMemo(() => getCarbon(accessToken), [accessToken]);
+  const [realtimeAuthSet, setRealtimeAuthSet] = useState(false);
   const refresh = useFetcher<{}>();
+
+  useEffect(() => {
+    const updateRealtimeAuth = async () => {
+      if (carbon && accessToken && !realtimeAuthSet) {
+        await carbon.realtime.setAuth(accessToken);
+        setRealtimeAuthSet(true);
+      }
+    };
+    updateRealtimeAuth();
+  }, [carbon, accessToken, realtimeAuthSet]);
+
+ 
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -70,7 +84,7 @@ export const CarbonProvider = ({
     initialLoad.current = false;
   }, 60000); // Check every minute
 
-  const value = useMemo(() => ({ carbon, accessToken }), [carbon, accessToken]);
+  const value = useMemo(() => ({ carbon, accessToken, realtimeAuthSet }), [carbon, accessToken, realtimeAuthSet]);
 
   return (
     <CarbonContext.Provider value={value}>{children}</CarbonContext.Provider>

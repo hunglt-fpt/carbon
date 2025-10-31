@@ -43735,6 +43735,9 @@ export default {
             $ref: "#/parameters/rowFilter.company.externalId",
           },
           {
+            $ref: "#/parameters/rowFilter.company.createdAt",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -43860,6 +43863,9 @@ export default {
             $ref: "#/parameters/rowFilter.company.externalId",
           },
           {
+            $ref: "#/parameters/rowFilter.company.createdAt",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -43937,6 +43943,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.externalId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.createdAt",
           },
           {
             $ref: "#/parameters/body.company",
@@ -82692,7 +82701,7 @@ export default {
       type: "object",
     },
     company: {
-      required: ["id", "name", "baseCurrencyCode"],
+      required: ["id", "name", "baseCurrencyCode", "createdAt"],
       properties: {
         id: {
           default: "public.id()",
@@ -82786,6 +82795,11 @@ export default {
         },
         externalId: {
           format: "jsonb",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
         },
       },
       type: "object",
@@ -112314,6 +112328,12 @@ export default {
     },
     "rowFilter.company.externalId": {
       name: "externalId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.company.createdAt": {
+      name: "createdAt",
       required: false,
       in: "query",
       type: "string",

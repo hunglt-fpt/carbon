@@ -13,7 +13,7 @@ let hydratedFromIdb = false;
 let hydratedFromServer = false;
 
 const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
-  const { carbon, accessToken } = useCarbon();
+  const { carbon, accessToken, realtimeAuthSet } = useCarbon();
   const {
     company: { id: companyId },
   } = useUser();
@@ -82,8 +82,13 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
     if (!companyId) return;
     hydrate();
 
-    if (!channelRef.current && carbon && accessToken) {
-      carbon.realtime.setAuth(accessToken);
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, accessToken]);
+
+  useEffect(() => {
+    if (!channelRef.current && carbon && accessToken && realtimeAuthSet) {
+      
       channelRef.current = carbon
         .channel("realtime:core")
         .on(
@@ -170,7 +175,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, accessToken]);
+  }, [carbon, accessToken, companyId, realtimeAuthSet]);
 
   return <>{children}</>;
 };
