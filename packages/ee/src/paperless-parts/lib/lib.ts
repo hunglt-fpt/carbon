@@ -1046,7 +1046,7 @@ export async function getCustomerIdAndContactId(
     // in Paperless Parts by name before creating a new one
     const customerName = `${contact.first_name} ${contact.last_name}`.trim();
 
-    // Search for existing accounts in Paperless Parts by name
+    // Search for existing accounts in Paperless Parts by name first
     const existingAccountsResponse = await paperless.accounts.listAccounts({
       search: customerName,
     });
@@ -1068,63 +1068,123 @@ export async function getCustomerIdAndContactId(
     if (existingPaperlessAccount) {
       // Use the existing account ID
       paperlessPartsAccountId = existingPaperlessAccount.id!;
-      console.log(`🔗 Found existing Paperless Parts account: ${customerName}`);
     } else {
       // Create a new account in Paperless Parts
-      const newPaperlessPartsAccount = await paperless.accounts.createAccount({
-        name: customerName,
-      });
+      let newPaperlessPartsAccount;
+      try {
+        newPaperlessPartsAccount = await paperless.accounts.createAccount({
+          name: customerName,
+        });
+      } catch (err) {
+        // If an exception is thrown, try to read the error details
+        if (err instanceof Response) {
+          try {
+            const errorBody = await err.text();
+            console.log(`Error response body:`, errorBody);
+          } catch (e) {
+            console.log(`Could not read error body:`, e);
+          }
+        }
+        // Set to an error state to trigger the fallback logic
+        newPaperlessPartsAccount = { error: err, data: null };
+      }
 
       if (newPaperlessPartsAccount.error) {
         // If we get an error creating the account (e.g., "An account with this name already exists"),
-        // try to find the existing account by name
+        // search again more thoroughly to find the existing account
         console.log(
-          `Failed to create account in Paperless Parts, searching for existing account: ${customerName}`
+          `Account creation failed in Paperless Parts, searching more thoroughly for: ${customerName}`
         );
 
-        const searchResponse = await paperless.accounts.listAccounts({
-          search: customerName,
-        });
+        // If the error is a Response object, try to get the actual error message
+        if (newPaperlessPartsAccount.error instanceof Response) {
+          try {
+            const errorBody = await newPaperlessPartsAccount.error.text();
+            console.log(`Error response body:`, errorBody);
+          } catch (e) {
+            console.log(`Could not read error body:`, e);
+          }
+        }
 
-        if (searchResponse.data && searchResponse.data.length > 0) {
-          // Look for an exact name match
-          existingPaperlessAccount = searchResponse.data.find(
-            (account) =>
-              account.name?.trim().toLowerCase() === customerName.toLowerCase()
-          );
+        // Try multiple search strategies to find the account
+        const searchStrategies = [
+          customerName.split(" ")[0], // First name only
+          customerName.split(" ").pop() || customerName, // Last name only
+          customerName, // Full name again (in case initial search had timing issues)
+        ];
 
-          if (existingPaperlessAccount) {
-            paperlessPartsAccountId = existingPaperlessAccount.id!;
-            console.log(
-              `🔗 Found existing Paperless Parts account after error: ${customerName}`
-            );
-          } else {
-            throw new Error(
-              "Failed to create or find account in Paperless Parts"
+        for (const searchTerm of searchStrategies) {
+          const searchResponse = await paperless.accounts.listAccounts({
+            search: searchTerm,
+          });
+
+          if (searchResponse.data && searchResponse.data.length > 0) {
+            // Look for an exact or close match
+            existingPaperlessAccount = searchResponse.data.find((account) => {
+              const accountNameLower = account.name?.trim().toLowerCase() || "";
+              const customerNameLower = customerName.toLowerCase();
+              return (
+                accountNameLower === customerNameLower ||
+                accountNameLower.includes(customerNameLower) ||
+                customerNameLower.includes(accountNameLower)
+              );
+            });
+
+            if (existingPaperlessAccount) {
+              break;
+            }
+          }
+        }
+
+        // If still not found after all searches, try listing ALL accounts (with pagination if needed)
+        if (!existingPaperlessAccount) {
+          const allAccountsResponse = await paperless.accounts.listAccounts({});
+
+          if (allAccountsResponse.data && allAccountsResponse.data.length > 0) {
+            // Look for exact name match
+            existingPaperlessAccount = allAccountsResponse.data.find(
+              (account) =>
+                account.name?.trim().toLowerCase() ===
+                customerName.toLowerCase()
             );
           }
-        } else {
-          throw new Error(
-            "Failed to create or find account in Paperless Parts"
+        }
+
+        if (existingPaperlessAccount) {
+          paperlessPartsAccountId = existingPaperlessAccount.id!;
+        }
+
+        // If we still haven't found an account, log the error but continue without throwing
+        if (!existingPaperlessAccount) {
+          console.error(
+            `Could not create or find account in Paperless Parts for: ${customerName}. Error:`,
+            newPaperlessPartsAccount.error
           );
+          // Use a fallback approach - we'll create the customer in Carbon without a Paperless Parts account ID
+          paperlessPartsAccountId = 0; // Use 0 as a fallback to indicate no Paperless Parts account
         }
       } else if (!newPaperlessPartsAccount.data) {
-        throw new Error("Failed to create account in Paperless Parts");
+        console.error(
+          "Failed to create account in Paperless Parts - no data returned"
+        );
+        paperlessPartsAccountId = 0; // Use 0 as a fallback
       } else {
         paperlessPartsAccountId = newPaperlessPartsAccount.data.id;
-        console.log("🔰 New Paperless Parts account created");
       }
     }
 
-    // Check if customer already exists in Carbon with this paperless account ID
-    const existingCustomerByPaperlessId = await carbon
-      .from("customer")
-      .select("id")
-      .eq("companyId", company.id)
-      .eq("externalId->>paperlessPartsId", String(paperlessPartsAccountId))
-      .maybeSingle();
+    // Check if customer already exists in Carbon with this paperless account ID (if we have one)
+    let existingCustomerByPaperlessId = null;
+    if (paperlessPartsAccountId > 0) {
+      existingCustomerByPaperlessId = await carbon
+        .from("customer")
+        .select("id")
+        .eq("companyId", company.id)
+        .eq("externalId->>paperlessPartsId", String(paperlessPartsAccountId))
+        .maybeSingle();
+    }
 
-    if (existingCustomerByPaperlessId.data) {
+    if (existingCustomerByPaperlessId?.data) {
       customerId = existingCustomerByPaperlessId.data.id;
     } else {
       // Try to find existing customer by name in Carbon
@@ -1136,48 +1196,52 @@ export async function getCustomerIdAndContactId(
         .maybeSingle();
 
       if (existingCustomerByName.data) {
-        // Update the existing customer with the external ID
-        const updatedCustomer = await carbon
-          .from("customer")
-          .update({
-            externalId: {
-              paperlessPartsId: paperlessPartsAccountId,
-            },
-          })
-          .eq("id", existingCustomerByName.data.id)
-          .select()
-          .single();
-
-        if (updatedCustomer.error || !updatedCustomer.data) {
-          console.error(
-            "Failed to update customer externalId in Carbon",
-            updatedCustomer.error
-          );
-          throw new Error("Failed to update customer externalId in Carbon");
-        }
-
-        customerId = updatedCustomer.data.id;
-        console.log(
-          "🔗 Updated existing Carbon customer with Paperless Parts ID"
-        );
-      } else {
-        // Create a new customer in Carbon
-        const newCustomer = await carbon
-          .from("customer")
-          .upsert(
-            {
-              companyId: company.id,
-              name: customerName,
+        // Update the existing customer with the external ID (if we have a valid Paperless Parts account ID)
+        if (paperlessPartsAccountId > 0) {
+          const updatedCustomer = await carbon
+            .from("customer")
+            .update({
               externalId: {
                 paperlessPartsId: paperlessPartsAccountId,
               },
-              currencyCode: company.baseCurrencyCode,
-              createdBy,
-            },
-            {
-              onConflict: "name, companyId",
-            }
-          )
+            })
+            .eq("id", existingCustomerByName.data.id)
+            .select()
+            .single();
+
+          if (updatedCustomer.error || !updatedCustomer.data) {
+            console.error(
+              "Failed to update customer externalId in Carbon",
+              updatedCustomer.error
+            );
+            throw new Error("Failed to update customer externalId in Carbon");
+          }
+
+          customerId = updatedCustomer.data.id;
+        } else {
+          customerId = existingCustomerByName.data.id;
+        }
+      } else {
+        // Create a new customer in Carbon
+        const customerData: any = {
+          companyId: company.id,
+          name: customerName,
+          currencyCode: company.baseCurrencyCode,
+          createdBy,
+        };
+
+        // Only add externalId if we have a valid Paperless Parts account ID
+        if (paperlessPartsAccountId > 0) {
+          customerData.externalId = {
+            paperlessPartsId: paperlessPartsAccountId,
+          };
+        }
+
+        const newCustomer = await carbon
+          .from("customer")
+          .upsert(customerData, {
+            onConflict: "name, companyId",
+          })
           .select()
           .single();
 
@@ -1189,7 +1253,6 @@ export async function getCustomerIdAndContactId(
           throw new Error("Failed to create customer in Carbon");
         }
 
-        console.log("🔰 New Carbon customer created");
         customerId = newCustomer.data.id;
       }
     }
@@ -1248,8 +1311,6 @@ export async function getCustomerIdAndContactId(
       };
     }
 
-    console.log("🔰 New Carbon contact created");
-
     const newCustomerContact = await carbon
       .from("customerContact")
       .insert({
@@ -1266,8 +1327,6 @@ export async function getCustomerIdAndContactId(
         customerId,
       };
     }
-
-    console.log("🔰 Carbon customerContact created");
 
     customerContactId = newCustomerContact.data.id;
   }
@@ -2508,6 +2567,4 @@ export async function insertOrderLines(
     console.warn("No valid order lines were inserted");
     return;
   }
-
-  console.log(`Successfully inserted ${insertedLinesCount} order lines`);
 }
