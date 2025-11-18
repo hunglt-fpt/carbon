@@ -16,8 +16,11 @@ FROM node:20
 WORKDIR /repo
 ENV NODE_ENV=production
 ENV PORT=3000
-# Production needs only built app + node_modules
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Production needs built app, node_modules, and packages (for workspace deps)
 COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=deps /repo/packages ./packages
 COPY --from=build /repo/apps/erp ./apps/erp
 EXPOSE 3000
 WORKDIR /repo/apps/erp

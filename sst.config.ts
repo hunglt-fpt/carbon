@@ -27,6 +27,13 @@ export default $config({
           { listen: "80/http", redirect: "443/https" },
           { listen: "443/https", forward: "3000/http" },
         ],
+        health: {
+          path: "/health",
+          interval: "60 seconds",
+          timeout: "30 seconds",
+          healthyThreshold: 2,
+          unhealthyThreshold: 5,
+        },
       },
       health: {
         command: [
@@ -102,6 +109,13 @@ export default $config({
           { listen: "80/http", redirect: "443/https" },
           { listen: "443/https", forward: "3000/http" },
         ],
+        health: {
+          path: "/health",
+          interval: "60 seconds",
+          timeout: "30 seconds",
+          healthyThreshold: 2,
+          unhealthyThreshold: 5,
+        },
       },
       health: {
         command: [
