@@ -73,6 +73,9 @@ async function migrate(): Promise<void> {
           SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID,
           SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET,
           SUPABASE_AUTH_EXTERNAL_GOOGLE_REDIRECT_URI,
+          ...(connection_string?.startsWith("postgresql://") && {
+            PGSSLMODE: "disable",
+          }),
         },
         cwd: "supabase",
       });
@@ -84,7 +87,7 @@ async function migrate(): Promise<void> {
       console.log(`✅ 🐣 Starting migrations for ${workspace.id}`);
 
       if (connection_string && connection_string.startsWith("postgresql://")) {
-        await $$`PGSSLMODE=disable supabase db push --db-url ${connection_string} --include-all`;
+        await $$`supabase db push --db-url ${connection_string} --include-all`;
       } else {
         await $$`supabase db push --include-all`;
         console.log(`✅ 🐣 Starting deployments for ${workspace.id}`);
