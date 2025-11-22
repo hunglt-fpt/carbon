@@ -41,7 +41,13 @@ export function SuggestedActions() {
       title: string;
       description: string;
     }
-  > = {};
+  > = {
+    // "get-runway": {
+    //   icon: Icons.Speed,
+    //   title: "Runway",
+    //   description: "Show me my runway",
+    // },
+  };
 
   const suggestedActions: SuggestedAction[] = [];
 

@@ -1,10 +1,10 @@
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
-import { useChat, useDataPart } from "@ai-sdk-tools/store";
+import { useChat, useChatActions, useDataPart } from "@ai-sdk-tools/store";
 import { useCarbon } from "@carbon/auth";
 import { cn } from "@carbon/react";
 import { useLocale } from "@react-aria/i18n";
 import { DefaultChatTransport, generateId } from "ai";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Greeting } from "~/components/Greeting";
 import { useUser } from "~/hooks";
 import { path } from "~/utils/path";
@@ -37,6 +37,28 @@ export function ChatInterface({ geo }: Props) {
   const recordButtonRef = useRef<RecordButtonRef>(null);
 
   const chatId = useMemo(() => routeChatId ?? generateId(), [routeChatId]);
+  const { reset } = useChatActions();
+  const prevChatIdRef = useRef<string | null>(routeChatId);
+  const [, clearSuggestions] = useDataPart<{ prompts: string[] }>(
+    "suggestions"
+  );
+
+  // Reset chat state when navigating away from a chat (sidebar, browser back, etc.)
+  useEffect(() => {
+    const prevChatId = prevChatIdRef.current;
+    const currentChatId = routeChatId;
+
+    // If we had a chatId before and now we don't (navigated away), reset
+    // Or if we're switching to a different chatId, reset
+    if (prevChatId && prevChatId !== currentChatId) {
+      reset();
+      clearSuggestions();
+    }
+
+    // Update the ref for next comparison
+    prevChatIdRef.current = currentChatId;
+  }, [routeChatId, reset, clearSuggestions]);
+
   const { locale } = useLocale();
   const { accessToken } = useCarbon();
   const {

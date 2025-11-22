@@ -1,5 +1,10 @@
 import { useArtifacts } from "@ai-sdk-tools/artifacts/client";
-import { useChatActions, useChatId, useChatStatus } from "@ai-sdk-tools/store";
+import {
+  useChatActions,
+  useChatId,
+  useChatStatus,
+  useDataPart,
+} from "@ai-sdk-tools/store";
 import { cn } from "@carbon/react";
 import { forwardRef, useRef } from "react";
 import { CommandMenu } from "./CommandMenu";
@@ -39,6 +44,10 @@ export const ChatInput = forwardRef<RecordButtonRef, ChatInputProps>(
     const status = useChatStatus();
     const { sendMessage, stop } = useChatActions();
     const chatId = useChatId();
+
+    const [, clearSuggestions] = useDataPart<{ prompts: string[] }>(
+      "suggestions"
+    );
 
     const { current } = useArtifacts({
       exclude: ["chat-title", "followup-questions"],
@@ -118,6 +127,8 @@ export const ChatInput = forwardRef<RecordButtonRef, ChatInputProps>(
                         // Execute command through the store
                         if (!chatId) return;
 
+                        clearSuggestions();
+
                         sendMessage({
                           role: "user",
                           parts: [
@@ -141,6 +152,14 @@ export const ChatInput = forwardRef<RecordButtonRef, ChatInputProps>(
                     if (e.key === "Enter" && !showCommands) {
                       e.preventDefault();
                       if (input.trim()) {
+                        if (status === "streaming" || status === "submitted") {
+                          stop?.();
+                          // Continue to send the new message after stopping
+                        }
+
+                        // Clear old suggestions
+                        clearSuggestions();
+
                         sendMessage({
                           text: input,
                           files: [],
