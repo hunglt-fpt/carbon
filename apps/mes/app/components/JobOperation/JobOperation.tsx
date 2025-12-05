@@ -301,7 +301,7 @@ export const JobOperation = ({
             companyId,
             createdBy: userId,
             operationId,
-            name: `${action.actionTypeName}-${action.nonConformanceId}`,
+            name: `${action.actionTypeName} - ${action.nonConformanceId}`,
             type: "Inspection" as const,
             sortOrder: ++maxSortOrder,
             nonConformanceActionId: actionId,
