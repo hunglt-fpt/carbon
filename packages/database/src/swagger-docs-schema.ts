@@ -6097,6 +6097,9 @@ export default {
             $ref: "#/parameters/rowFilter.nonConformanceActionTask.supplierId",
           },
           {
+            $ref: "#/parameters/rowFilter.nonConformanceActionTask.externalId",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -6204,6 +6207,9 @@ export default {
             $ref: "#/parameters/rowFilter.nonConformanceActionTask.supplierId",
           },
           {
+            $ref: "#/parameters/rowFilter.nonConformanceActionTask.externalId",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -6263,6 +6269,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.nonConformanceActionTask.supplierId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.nonConformanceActionTask.externalId",
           },
           {
             $ref: "#/parameters/body.nonConformanceActionTask",
@@ -27280,6 +27289,9 @@ export default {
             $ref: "#/parameters/rowFilter.userAttributeCategory.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.userAttributeCategory.emoji",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -27369,6 +27381,9 @@ export default {
             $ref: "#/parameters/rowFilter.userAttributeCategory.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.userAttributeCategory.emoji",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -27410,6 +27425,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.userAttributeCategory.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.userAttributeCategory.emoji",
           },
           {
             $ref: "#/parameters/body.userAttributeCategory",
@@ -33751,6 +33769,9 @@ export default {
             $ref: "#/parameters/rowFilter.nonConformanceReviewer.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.nonConformanceReviewer.completedDate",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -33843,6 +33864,9 @@ export default {
             $ref: "#/parameters/rowFilter.nonConformanceReviewer.updatedBy",
           },
           {
+            $ref: "#/parameters/rowFilter.nonConformanceReviewer.completedDate",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -33887,6 +33911,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.nonConformanceReviewer.updatedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.nonConformanceReviewer.completedDate",
           },
           {
             $ref: "#/parameters/body.nonConformanceReviewer",
@@ -55567,6 +55594,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.gaugeCalibrationExpiredNotificationGroup",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.purchasePriceUpdateTiming",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -55665,6 +55695,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.gaugeCalibrationExpiredNotificationGroup",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.purchasePriceUpdateTiming",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -55715,6 +55748,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.gaugeCalibrationExpiredNotificationGroup",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.purchasePriceUpdateTiming",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -56956,6 +56992,41 @@ export default {
           },
         },
         tags: ["(rpc) get_companies_with_any_role"],
+      },
+    },
+    "/rpc/get_unscheduled_jobs": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                location_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["location_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_unscheduled_jobs"],
       },
     },
     "/rpc/get_direct_ancestors_of_tracked_entity": {
@@ -62881,6 +62952,9 @@ export default {
           format: "text",
           type: "string",
         },
+        externalId: {
+          format: "json",
+        },
       },
       type: "object",
     },
@@ -65984,6 +66058,7 @@ export default {
             "Job Consumption",
             "Job Receipt",
             "Batch Split",
+            "Purchase Order",
           ],
           format: 'public."itemLedgerDocumentType"',
           type: "string",
@@ -72993,6 +73068,10 @@ export default {
           format: "text",
           type: "string",
         },
+        emoji: {
+          format: "text",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -76011,6 +76090,10 @@ export default {
           format: "text",
           type: "string",
         },
+        completedDate: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -77859,6 +77942,7 @@ export default {
             "Job Consumption",
             "Job Receipt",
             "Batch Split",
+            "Purchase Order",
           ],
           format: 'public."itemLedgerDocumentType"',
           type: "string",
@@ -86534,6 +86618,7 @@ export default {
         "useMetric",
         "kanbanOutput",
         "gaugeCalibrationExpiredNotificationGroup",
+        "purchasePriceUpdateTiming",
       ],
       properties: {
         id: {
@@ -86612,6 +86697,12 @@ export default {
             type: "string",
           },
           type: "array",
+        },
+        purchasePriceUpdateTiming: {
+          default: "Purchase Invoice Post",
+          enum: ["Purchase Invoice Post", "Purchase Order Finalize"],
+          format: 'public."purchasePriceUpdateTiming"',
+          type: "string",
         },
       },
       type: "object",
@@ -90041,6 +90132,12 @@ export default {
     },
     "rowFilter.nonConformanceActionTask.supplierId": {
       name: "supplierId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.nonConformanceActionTask.externalId": {
+      name: "externalId",
       required: false,
       in: "query",
       type: "string",
@@ -101367,6 +101464,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.userAttributeCategory.emoji": {
+      name: "emoji",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.trackedActivity": {
       name: "trackedActivity",
       description: "trackedActivity",
@@ -104834,6 +104937,12 @@ export default {
     },
     "rowFilter.nonConformanceReviewer.updatedBy": {
       name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.nonConformanceReviewer.completedDate": {
+      name: "completedDate",
       required: false,
       in: "query",
       type: "string",
@@ -116759,6 +116868,12 @@ export default {
     },
     "rowFilter.companySettings.gaugeCalibrationExpiredNotificationGroup": {
       name: "gaugeCalibrationExpiredNotificationGroup",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.purchasePriceUpdateTiming": {
+      name: "purchasePriceUpdateTiming",
       required: false,
       in: "query",
       type: "string",
