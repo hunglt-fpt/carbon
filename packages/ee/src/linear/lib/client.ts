@@ -48,40 +48,50 @@ export class LinearClient {
   }
 
   async listTeams(companyId: string) {
-    const query = `query Teams { teams { nodes { id name } } }`;
+    try {
+      const query = `query Teams { teams { nodes { id name } } }`;
 
-    const response = await this.instance.request<{
-      data: { teams: { nodes: LinearTeam[] } };
-    }>({
-      method: "POST",
-      headers: await this.getAuthHeaders(companyId),
-      data: {
-        query,
-      },
-    });
+      const response = await this.instance.request<{
+        data: { teams: { nodes: LinearTeam[] } };
+      }>({
+        method: "POST",
+        headers: await this.getAuthHeaders(companyId),
+        data: {
+          query,
+        },
+      });
 
-    return response.data.data.teams.nodes.map((el) => el);
+      return response.data.data.teams.nodes.map((el) => el);
+    } catch (error) {
+      console.error("Error listing Linear teams:", error);
+      return [];
+    }
   }
 
   async listIssues(companyId: string, input: string) {
-    const query = `query SearchIssues($filter: IssueFilter!) { issues( filter: $filter first: 5 orderBy: updatedAt ) { nodes { id identifier title description state { name type color } url assignee { email } } } }`;
+    try {
+      const query = `query SearchIssues($filter: IssueFilter!) { issues( filter: $filter first: 5 orderBy: updatedAt ) { nodes { id identifier title description state { name type color } url assignee { email } } } }`;
 
-    const response = await this.instance.request<{
-      data: { issues: { nodes: LinearIssue[] } };
-    }>({
-      method: "POST",
-      headers: await this.getAuthHeaders(companyId),
-      data: {
-        query,
-        variables: {
-          filter: {
-            title: { containsIgnoreCase: input },
+      const response = await this.instance.request<{
+        data: { issues: { nodes: LinearIssue[] } };
+      }>({
+        method: "POST",
+        headers: await this.getAuthHeaders(companyId),
+        data: {
+          query,
+          variables: {
+            filter: {
+              title: { containsIgnoreCase: input },
+            },
           },
         },
-      },
-    });
+      });
 
-    return response.data.data.issues.nodes.map((el) => el);
+      return response.data.data.issues.nodes.map((el) => el);
+    } catch (error) {
+      console.error("Error listing Linear issues:", error);
+      return [];
+    }
   }
 
   async getIssueById(companyId: string, issueId: string) {
@@ -131,20 +141,25 @@ export class LinearClient {
   }
 
   async listTeamMembers(companyId: string, teamId: string) {
-    const query = `query Team($teamId: String!) { team(id: $teamId) { members { nodes { id email name } } } }`;
+    try {
+      const query = `query Team($teamId: String!) { team(id: $teamId) { members { nodes { id email name } } } }`;
 
-    const response = await this.instance.request<{
-      data: { team: { members: { nodes: LinearUser[] } } };
-    }>({
-      method: "POST",
-      headers: await this.getAuthHeaders(companyId),
-      data: {
-        query,
-        variables: { teamId },
-      },
-    });
+      const response = await this.instance.request<{
+        data: { team: { members: { nodes: LinearUser[] } } };
+      }>({
+        method: "POST",
+        headers: await this.getAuthHeaders(companyId),
+        data: {
+          query,
+          variables: { teamId },
+        },
+      });
 
-    return response.data.data.team.members.nodes.map((el) => el);
+      return response.data.data.team.members.nodes.map((el) => el);
+    } catch (error) {
+      console.error("Error listing Linear team members:", error);
+      return [];
+    }
   }
 
   async createIssue(

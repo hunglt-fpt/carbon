@@ -11,50 +11,58 @@ import { getIssueAction } from "~/modules/quality/quality.service";
 const linear = new LinearClient();
 
 export const action: ActionFunction = async ({ request }) => {
-  const data = await request.formData();
+  try {
+    const data = await request.formData();
 
-  const { companyId, client } = await requirePermissions(request, {});
+    const { companyId, client } = await requirePermissions(request, {});
 
-  const actionId = data.get("actionId") as string;
-  const teamId = data.get("teamId") as string;
-  const title = data.get("title") as string;
-  const description = data.get("description") as string;
-  const assigneeId = data.get("assignee") as string;
+    const actionId = data.get("actionId") as string;
+    const teamId = data.get("teamId") as string;
+    const title = data.get("title") as string;
+    const description = data.get("description") as string;
+    const assigneeId = data.get("assignee") as string;
 
-  const [carbonIssue, issue] = await Promise.all([
-    getIssueAction(client, actionId),
-    linear.createIssue(companyId, {
-      teamId,
-      title,
-      description: description || undefined,
-      assigneeId: assigneeId || null,
-    }),
-  ]);
+    const [carbonIssue, issue] = await Promise.all([
+      getIssueAction(client, actionId),
+      linear.createIssue(companyId, {
+        teamId,
+        title,
+        description: description || undefined,
+        assigneeId: assigneeId || null,
+      }),
+    ]);
 
-  if (!issue) {
-    return { success: false, message: "Issue not found" };
+    if (!issue) {
+      return { success: false, message: "Issue not found" };
+    }
+
+    const linked = await linkActionToLinearIssue(client, companyId, {
+      actionId,
+      issue: issue,
+    });
+
+    if (!linked || linked.data?.length === 0) {
+      return json({ success: false, message: "Failed to link issue" });
+    }
+
+    const nonConformanceId = linked.data?.[0].nonConformanceId;
+
+    const url = getAppUrl() + `/x/issue/${nonConformanceId}/details`;
+
+    await linear.createAttachmentLink(companyId, {
+      issueId: issue.id,
+      url,
+      title: `Linked Carbon Issue: ${carbonIssue.data?.nonConformanceId ?? ""}`,
+    });
+
+    return new Response("Linear issue created");
+  } catch (error) {
+    console.error("Linear issue action error:", error);
+    return json(
+      { success: false, message: "Failed to create issue" },
+      { status: 400 }
+    );
   }
-
-  const linked = await linkActionToLinearIssue(client, companyId, {
-    actionId,
-    issue: issue,
-  });
-
-  if (!linked || linked.data?.length === 0) {
-    return json({ success: false, message: "Failed to link issue" });
-  }
-
-  const nonConformanceId = linked.data?.[0].nonConformanceId;
-
-  const url = getAppUrl() + `/x/issue/${nonConformanceId}/details`;
-
-  await linear.createAttachmentLink(companyId, {
-    issueId: issue.id,
-    url,
-    title: `Linked Carbon Issue: ${carbonIssue.data?.nonConformanceId ?? ""}`,
-  });
-
-  return new Response("Linear issue created");
 };
 
 export const loader: LoaderFunction = async ({ request }) => {

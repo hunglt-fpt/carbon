@@ -11,76 +11,87 @@ import { getIssueAction } from "~/modules/quality/quality.service";
 const linear = new LinearClient();
 
 export const action: ActionFunction = async ({ request }) => {
-  const { companyId, client } = await requirePermissions(request, {});
-  const form = await request.formData();
+  try {
+    const { companyId, client } = await requirePermissions(request, {});
+    const form = await request.formData();
 
-  const actionId = form.get("actionId") as string;
+    const actionId = form.get("actionId") as string;
 
-  if (!actionId) {
-    return { success: false, message: "Missing required fields: actionId" };
-  }
-
-  switch (request.method) {
-    case "POST": {
-      const issueId = form.get("issueId") as string;
-
-      if (!issueId) {
-        return { success: false, message: "Missing required fields: issueId" };
-      }
-
-      const [carbonIssue, issue] = await Promise.all([
-        getIssueAction(client, actionId),
-        linear.getIssueById(companyId, issueId),
-      ]);
-
-      if (!issue) {
-        return { success: false, message: "Issue not found" };
-      }
-
-      const email = issue.assignee?.email ?? "";
-
-      const assignee = await client
-        .from("user")
-        .select("id")
-        .eq("email", email)
-        .single();
-
-      const linked = await linkActionToLinearIssue(client, companyId, {
-        actionId,
-        issue,
-        assignee: assignee.data ? assignee.data.id : null,
-      });
-
-      if (!linked || linked.data?.length === 0) {
-        return json({ success: false, message: "Failed to link issue" });
-      }
-
-      const nonConformanceId = linked.data?.[0].nonConformanceId;
-
-      const url = getAppUrl() + `/x/issue/${nonConformanceId}/details`;
-
-      await linear.createAttachmentLink(companyId, {
-        issueId: issue.id as string,
-        url,
-        title: `Linked Carbon Issue: ${
-          carbonIssue.data?.nonConformanceId ?? ""
-        }`,
-      });
-
-      return json({ success: true, message: "Linked successfully" });
+    if (!actionId) {
+      return { success: false, message: "Missing required fields: actionId" };
     }
 
-    case "DELETE": {
-      const unlinked = await unlinkActionFromLinearIssue(client, companyId, {
-        actionId,
-      });
+    switch (request.method) {
+      case "POST": {
+        const issueId = form.get("issueId") as string;
 
-      if (unlinked.error) {
-        return json({ success: false, message: "Failed to unlink issue" });
+        if (!issueId) {
+          return {
+            success: false,
+            message: "Missing required fields: issueId",
+          };
+        }
+
+        const [carbonIssue, issue] = await Promise.all([
+          getIssueAction(client, actionId),
+          linear.getIssueById(companyId, issueId),
+        ]);
+
+        if (!issue) {
+          return { success: false, message: "Issue not found" };
+        }
+
+        const email = issue.assignee?.email ?? "";
+
+        const assignee = await client
+          .from("user")
+          .select("id")
+          .eq("email", email)
+          .single();
+
+        const linked = await linkActionToLinearIssue(client, companyId, {
+          actionId,
+          issue,
+          assignee: assignee.data ? assignee.data.id : null,
+        });
+
+        if (!linked || linked.data?.length === 0) {
+          return json({ success: false, message: "Failed to link issue" });
+        }
+
+        const nonConformanceId = linked.data?.[0].nonConformanceId;
+
+        const url = getAppUrl() + `/x/issue/${nonConformanceId}/details`;
+
+        await linear.createAttachmentLink(companyId, {
+          issueId: issue.id as string,
+          url,
+          title: `Linked Carbon Issue: ${
+            carbonIssue.data?.nonConformanceId ?? ""
+          }`,
+        });
+
+        return json({ success: true, message: "Linked successfully" });
       }
 
-      return json({ success: true, message: "Unlinked successfully" });
+      case "DELETE": {
+        const unlinked = await unlinkActionFromLinearIssue(client, companyId, {
+          actionId,
+        });
+
+        if (unlinked.error) {
+          return json({ success: false, message: "Failed to unlink issue" });
+        }
+
+        return json({ success: true, message: "Unlinked successfully" });
+      }
     }
+  } catch (error) {
+    console.error("Linear issue link action error:", error);
+    return json(
+      { success: false, message: `Failed to process request` },
+      { status: 400 }
+    );
   }
 };
 
