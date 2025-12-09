@@ -26,8 +26,8 @@ import {
   LuLink,
   LuMove3D,
 } from "react-icons/lu";
-import { z } from 'zod/v3';
 import { zfd } from "zod-form-data";
+import { z } from "zod/v3";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
 import { Boolean, Tags, UnitOfMeasure } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
@@ -190,9 +190,7 @@ const PartProperties = () => {
                   aria-label="Copy"
                   size="sm"
                   className="p-1"
-                  onClick={() =>
-                    copyToClipboard(routeData?.partSummary?.id ?? "")
-                  }
+                  onClick={() => copyToClipboard(itemId)}
                 >
                   <LuKeySquare className="w-3 h-3" />
                 </Button>
