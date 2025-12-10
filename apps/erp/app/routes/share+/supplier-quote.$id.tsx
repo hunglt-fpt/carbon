@@ -697,23 +697,14 @@ const Quote = ({
   });
 
   // Calculate grand total for display (all selected quantities across all lines)
-  const grandTotal = Object.values(selectedLines).reduce(
-    (acc, lineSelections) => {
+  const eachSelectedLineHasPricingAndLeadTime =
+    Object.values(selectedLines).every((lineSelections) => {
       return (
-        acc +
-        Object.values(lineSelections).reduce((lineAcc, line) => {
-          if (line.quantity === 0) return lineAcc;
-          return (
-            lineAcc +
-            line.supplierUnitPrice * line.quantity +
-            line.supplierShippingCost +
-            line.supplierTaxAmount
-          );
-        }, 0)
+        Object.values(lineSelections).every(
+          (line) => line.quantity > 0 && line.leadTime > 0
+        ) && Object.values(lineSelections).length > 0
       );
-    },
-    0
-  );
+    }) && Object.values(selectedLines).length > 0;
 
   return (
     <VStack spacing={8} className="w-full items-center p-2 md:p-8">
@@ -752,7 +743,7 @@ const Quote = ({
                   onClick={submitModal.onOpen}
                   size="lg"
                   variant="primary"
-                  isDisabled={grandTotal === 0}
+                  isDisabled={!eachSelectedLineHasPricingAndLeadTime}
                   className="w-full text-lg"
                 >
                   Submit Quote
