@@ -48504,90 +48504,6 @@ export default {
         tags: ["nonConformanceJobOperation"],
       },
     },
-    "/trainingAssignmentStatus": {
-      get: {
-        parameters: [
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.trainingAssignmentId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.trainingId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.trainingName",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.frequency",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.type",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.employeeId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.employeeName",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.avatarUrl",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.employeeStartDate",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.companyId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.currentPeriod",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.completionId",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.completedAt",
-          },
-          {
-            $ref: "#/parameters/rowFilter.trainingAssignmentStatus.status",
-          },
-          {
-            $ref: "#/parameters/select",
-          },
-          {
-            $ref: "#/parameters/order",
-          },
-          {
-            $ref: "#/parameters/range",
-          },
-          {
-            $ref: "#/parameters/rangeUnit",
-          },
-          {
-            $ref: "#/parameters/offset",
-          },
-          {
-            $ref: "#/parameters/limit",
-          },
-          {
-            $ref: "#/parameters/preferCount",
-          },
-        ],
-        responses: {
-          "200": {
-            description: "OK",
-            schema: {
-              items: {
-                $ref: "#/definitions/trainingAssignmentStatus",
-              },
-              type: "array",
-            },
-          },
-          "206": {
-            description: "Partial Content",
-          },
-        },
-        tags: ["trainingAssignmentStatus"],
-      },
-    },
     "/salesInvoiceShipment": {
       get: {
         parameters: [
@@ -58766,6 +58682,41 @@ export default {
         tags: ["(rpc) get_method_tree"],
       },
     },
+    "/rpc/get_training_assignment_status": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_company_id: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_company_id"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) get_training_assignment_status"],
+      },
+    },
     "/rpc/update_receipt_line_serial_tracking": {
       post: {
         parameters: [
@@ -60642,12 +60593,12 @@ export default {
             required: true,
             schema: {
               properties: {
-                company_id: {
+                p_company_id: {
                   format: "text",
                   type: "string",
                 },
               },
-              required: ["company_id"],
+              required: ["p_company_id"],
               type: "object",
             },
           },
@@ -84544,76 +84495,6 @@ export default {
         updatedBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-      },
-      type: "object",
-    },
-    trainingAssignmentStatus: {
-      properties: {
-        trainingAssignmentId: {
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        trainingId: {
-          description:
-            "Note:\nThis is a Foreign Key to `training.id`.<fk table='training' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        trainingName: {
-          format: "text",
-          type: "string",
-        },
-        frequency: {
-          enum: ["Once", "Quarterly", "Annual"],
-          format: 'public."trainingFrequency"',
-          type: "string",
-        },
-        type: {
-          enum: ["Mandatory", "Optional"],
-          format: 'public."trainingType"',
-          type: "string",
-        },
-        employeeId: {
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "text",
-          type: "string",
-        },
-        employeeName: {
-          format: "text",
-          type: "string",
-        },
-        avatarUrl: {
-          format: "text",
-          type: "string",
-        },
-        employeeStartDate: {
-          format: "date",
-          type: "string",
-        },
-        companyId: {
-          description:
-            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
-          format: "text",
-          type: "string",
-        },
-        currentPeriod: {
-          format: "text",
-          type: "string",
-        },
-        completionId: {
-          description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
-          type: "integer",
-        },
-        completedAt: {
-          format: "timestamp with time zone",
-          type: "string",
-        },
-        status: {
           format: "text",
           type: "string",
         },
@@ -114842,99 +114723,6 @@ export default {
     },
     "rowFilter.nonConformanceJobOperation.updatedBy": {
       name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "body.trainingAssignmentStatus": {
-      name: "trainingAssignmentStatus",
-      description: "trainingAssignmentStatus",
-      required: false,
-      in: "body",
-      schema: {
-        $ref: "#/definitions/trainingAssignmentStatus",
-      },
-    },
-    "rowFilter.trainingAssignmentStatus.trainingAssignmentId": {
-      name: "trainingAssignmentId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.trainingId": {
-      name: "trainingId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.trainingName": {
-      name: "trainingName",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.frequency": {
-      name: "frequency",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.type": {
-      name: "type",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.employeeId": {
-      name: "employeeId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.employeeName": {
-      name: "employeeName",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.avatarUrl": {
-      name: "avatarUrl",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.employeeStartDate": {
-      name: "employeeStartDate",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.companyId": {
-      name: "companyId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.currentPeriod": {
-      name: "currentPeriod",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.completionId": {
-      name: "completionId",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.completedAt": {
-      name: "completedAt",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.trainingAssignmentStatus.status": {
-      name: "status",
       required: false,
       in: "query",
       type: "string",

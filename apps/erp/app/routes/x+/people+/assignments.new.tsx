@@ -2,7 +2,9 @@ import { validationError, validator } from "@carbon/form";
 import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { NotificationEvent } from "@carbon/notifications";
 import { redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
 import { json } from "@vercel/remix";
 import {
@@ -75,6 +77,24 @@ export async function action({ request }: ActionFunctionArgs) {
         ),
       }
     );
+  }
+
+  // Send notifications to all users in the assigned groups
+  if (result.data?.id) {
+    try {
+      await tasks.trigger("notify", {
+        companyId,
+        documentId: result.data.id,
+        event: NotificationEvent.TrainingAssignment,
+        recipient: {
+          type: "group",
+          groupIds,
+        },
+        from: userId,
+      });
+    } catch (err) {
+      console.error("Failed to send training assignment notifications", err);
+    }
   }
 
   throw redirect(

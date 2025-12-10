@@ -4,6 +4,7 @@ import { generatePath } from "@remix-run/react";
 const x = "/x"; // from ~/routes/x+ folder
 const api = "/api"; // from ~/routes/api+ folder
 const file = "/file"; // from ~/routes/file+ folder
+const share = "/share"; // from ~/routes/shared+ folder
 const onboarding = "/onboarding"; // from ~/routes/onboarding+ folder
 export const MES_URL = getMESUrl();
 export const ERP_URL = getAppUrl();
@@ -40,6 +41,7 @@ export const path = {
       customFieldOptions: (table: string, fieldId: string) =>
         generatePath(`${api}/settings/custom-fields/${table}/${fieldId}`),
       departments: `${api}/people/departments`,
+      outstandingTrainings: `${api}/people/trainings`,
       digitalQuote: (id: string) =>
         generatePath(`${api}/sales/digital-quote/${id}`),
       docs: `${api}/docs`,
@@ -389,6 +391,8 @@ export const path = {
     company: `${x}/settings/company`,
     companySwitch: (companyId: string) =>
       generatePath(`${x}/settings/company/switch/${companyId}`),
+    completeTrainingAssignment: (id: string) =>
+      generatePath(`${share}/training/${id}`),
     configurationParameter: (itemId: string) =>
       generatePath(`${x}/part/${itemId}/parameter`),
     configurationParameterGroup: (itemId: string) =>

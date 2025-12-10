@@ -81,7 +81,7 @@ export type TrainingAssignmentStatusItem = {
   trainingId: string;
   trainingName: string;
   frequency: (typeof trainingFrequency)[number];
-  type: "Mandatory" | "Optional";
+  trainingType: "Mandatory" | "Optional";
   employeeId: string;
   employeeName: string | null;
   avatarUrl: string | null;

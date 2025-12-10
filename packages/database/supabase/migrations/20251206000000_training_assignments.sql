@@ -72,64 +72,99 @@ BEGIN
 END;
 $$;
 
--- View for training assignment status
-CREATE OR REPLACE VIEW "trainingAssignmentStatus" WITH(SECURITY_INVOKER=true) AS
-WITH assigned_employees AS (
-  SELECT DISTINCT
-    ta.id AS "trainingAssignmentId",
-    ta."trainingId",
-    t."name" AS "trainingName",
-    t."frequency",
-    t."type",
-    u.id AS "employeeId",
-    u."fullName" AS "employeeName",
-    u."avatarUrl",
-    ej."startDate" AS "employeeStartDate",
-    ta."companyId"
-  FROM "trainingAssignment" ta
-  JOIN "training" t ON t.id = ta."trainingId" AND t."status" = 'Active'
-  CROSS JOIN LATERAL (
-    SELECT DISTINCT m."memberUserId" AS user_id
-    FROM "membership" m
-    WHERE m."groupId" = ANY(ta."groupIds") AND m."memberUserId" IS NOT NULL
-  ) group_members
-  JOIN "user" u ON u.id = group_members.user_id AND u.active = TRUE
-  JOIN "employee" e ON e.id = u.id AND e."companyId" = ta."companyId"
-  LEFT JOIN "employeeJob" ej ON ej.id = u.id AND ej."companyId" = ta."companyId"
-),
-with_period AS (
-  SELECT *, get_current_training_period("frequency") AS "currentPeriod"
-  FROM assigned_employees
-)
-SELECT
-  wp.*,
-  tc.id AS "completionId",
-  tc."completedAt",
-  CASE
-    WHEN wp."frequency" = 'Once' THEN
-      CASE WHEN tc.id IS NOT NULL THEN 'Completed' ELSE 'Pending' END
-    WHEN tc.id IS NOT NULL THEN 'Completed'
-    WHEN NOT employee_requires_period(wp."employeeStartDate", wp."currentPeriod") THEN 'Not Required'
-    WHEN get_period_end_date(wp."currentPeriod") < CURRENT_DATE THEN 'Overdue'
-    ELSE 'Pending'
-  END AS "status"
-FROM with_period wp
-LEFT JOIN "trainingCompletion" tc ON
-  tc."trainingAssignmentId" = wp."trainingAssignmentId"
-  AND tc."employeeId" = wp."employeeId"
-  AND ((wp."frequency" = 'Once' AND tc."period" IS NULL) OR tc."period" = wp."currentPeriod");
+-- Function to get training assignment status for a company
+CREATE OR REPLACE FUNCTION get_training_assignment_status(p_company_id TEXT)
+RETURNS TABLE (
+  "trainingAssignmentId" TEXT,
+  "trainingId" TEXT,
+  "trainingName" TEXT,
+  frequency "trainingFrequency",
+  "trainingType" "trainingType",
+  "employeeId" TEXT,
+  "employeeName" TEXT,
+  "avatarUrl" TEXT,
+  "employeeStartDate" DATE,
+  "companyId" TEXT,
+  "currentPeriod" TEXT,
+  "completionId" INTEGER,
+  "completedAt" TIMESTAMP WITH TIME ZONE,
+  status TEXT
+) LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN QUERY
+  WITH group_users AS (
+    -- Get distinct users from all training assignment groups for this company
+    SELECT DISTINCT
+      ta.id AS assignment_id,
+      jsonb_array_elements_text(users_for_groups(ta."groupIds")) AS user_id
+    FROM "trainingAssignment" ta
+    WHERE ta."companyId" = p_company_id
+  ),
+  assigned_employees AS (
+    SELECT DISTINCT
+      ta.id AS "trainingAssignmentId",
+      ta."trainingId" AS "trainingId",
+      t."name" AS "trainingName",
+      t."frequency",
+      t."type" AS "trainingType",
+      u.id AS "employeeId",
+      u."fullName" AS "employeeName",
+      u."avatarUrl" AS "avatarUrl",
+      ej."startDate" AS "employeeStartDate",
+      ta."companyId" AS "companyId"
+    FROM "trainingAssignment" ta
+    JOIN "training" t ON t.id = ta."trainingId" AND t."status" = 'Active'
+    JOIN group_users gu ON gu.assignment_id = ta.id
+    JOIN "user" u ON u.id = gu.user_id AND u.active = TRUE
+    JOIN "employee" e ON e.id = u.id AND e."companyId" = ta."companyId"
+    LEFT JOIN "employeeJob" ej ON ej.id = u.id AND ej."companyId" = ta."companyId"
+    WHERE ta."companyId" = p_company_id
+  ),
+  with_period AS (
+    SELECT ae.*, get_current_training_period(ae."frequency") AS "currentPeriod"
+    FROM assigned_employees ae
+  )
+  SELECT
+    wp."trainingAssignmentId",
+    wp."trainingId",
+    wp."trainingName",
+    wp."frequency",
+    wp."trainingType",
+    wp."employeeId",
+    wp."employeeName",
+    wp."avatarUrl",
+    wp."employeeStartDate",
+    wp."companyId",
+    wp."currentPeriod",
+    tc.id AS "completionId",
+    tc."completedAt" AS "completedAt",
+    CASE
+      WHEN wp."frequency" = 'Once' THEN
+        CASE WHEN tc.id IS NOT NULL THEN 'Completed' ELSE 'Pending' END
+      WHEN tc.id IS NOT NULL THEN 'Completed'
+      WHEN NOT employee_requires_period(wp."employeeStartDate", wp."currentPeriod") THEN 'Not Required'
+      WHEN get_period_end_date(wp."currentPeriod") < CURRENT_DATE THEN 'Overdue'
+      ELSE 'Pending'
+    END AS status
+  FROM with_period wp
+  LEFT JOIN "trainingCompletion" tc ON
+    tc."trainingAssignmentId" = wp."trainingAssignmentId"
+    AND tc."employeeId" = wp."employeeId"
+    AND ((wp."frequency" = 'Once' AND tc."period" IS NULL) OR tc."period" = wp."currentPeriod");
+END;
+$$;
 
 -- Function to get training assignment summary
-CREATE OR REPLACE FUNCTION get_training_assignment_summary(company_id TEXT)
+CREATE OR REPLACE FUNCTION get_training_assignment_summary(p_company_id TEXT)
 RETURNS TABLE (
   "trainingId" TEXT,
   "trainingName" TEXT,
-  "frequency" "trainingFrequency",
+  frequency "trainingFrequency",
   "currentPeriod" TEXT,
   "totalAssigned" BIGINT,
-  "completed" BIGINT,
-  "pending" BIGINT,
-  "overdue" BIGINT,
+  completed BIGINT,
+  pending BIGINT,
+  overdue BIGINT,
   "completionPercent" NUMERIC
 ) LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
@@ -137,19 +172,18 @@ BEGIN
   SELECT
     tas."trainingId",
     tas."trainingName",
-    tas."frequency",
+    tas.frequency,
     tas."currentPeriod",
-    COUNT(*) FILTER (WHERE tas."status" != 'Not Required'),
-    COUNT(*) FILTER (WHERE tas."status" = 'Completed'),
-    COUNT(*) FILTER (WHERE tas."status" = 'Pending'),
-    COUNT(*) FILTER (WHERE tas."status" = 'Overdue'),
+    COUNT(*) FILTER (WHERE tas.status != 'Not Required'),
+    COUNT(*) FILTER (WHERE tas.status = 'Completed'),
+    COUNT(*) FILTER (WHERE tas.status = 'Pending'),
+    COUNT(*) FILTER (WHERE tas.status = 'Overdue'),
     CASE
-      WHEN COUNT(*) FILTER (WHERE tas."status" != 'Not Required') = 0 THEN 100
-      ELSE ROUND(COUNT(*) FILTER (WHERE tas."status" = 'Completed')::NUMERIC * 100 /
-           NULLIF(COUNT(*) FILTER (WHERE tas."status" != 'Not Required'), 0), 1)
+      WHEN COUNT(*) FILTER (WHERE tas.status != 'Not Required') = 0 THEN 100
+      ELSE ROUND(COUNT(*) FILTER (WHERE tas.status = 'Completed')::NUMERIC * 100 /
+           NULLIF(COUNT(*) FILTER (WHERE tas.status != 'Not Required'), 0), 1)
     END
-  FROM "trainingAssignmentStatus" tas
-  WHERE tas."companyId" = company_id
-  GROUP BY tas."trainingId", tas."trainingName", tas."frequency", tas."currentPeriod";
+  FROM get_training_assignment_status(p_company_id) tas
+  GROUP BY tas."trainingId", tas."trainingName", tas.frequency, tas."currentPeriod";
 END;
 $$;

@@ -485,23 +485,49 @@ export async function getTrainingAssignmentStatus(
     search?: string;
   } & GenericQueryFilters
 ) {
-  let query = client
-    .from("trainingAssignmentStatus")
-    .select("*", { count: "exact" })
-    .eq("companyId", companyId);
+  const { data, error } = await client.rpc("get_training_assignment_status", {
+    p_company_id: companyId,
+  });
 
-  if (args?.trainingId) query = query.eq("trainingId", args.trainingId);
-  if (args?.status) query = query.eq("status", args.status);
-  if (args?.search)
-    query = query.or(
-      `trainingName.ilike.%${args.search}%,employeeName.ilike.%${args.search}%`
+  if (error) return { data: null, error, count: null };
+
+  let filteredData = data ?? [];
+
+  // Apply filters in memory since we're using an RPC function
+  if (args?.trainingId) {
+    filteredData = filteredData.filter((d) => d.trainingId === args.trainingId);
+  }
+  if (args?.status) {
+    filteredData = filteredData.filter((d) => d.status === args.status);
+  }
+  if (args?.search) {
+    const searchLower = args.search.toLowerCase();
+    filteredData = filteredData.filter(
+      (d) =>
+        d.trainingName?.toLowerCase().includes(searchLower) ||
+        d.employeeName?.toLowerCase().includes(searchLower)
     );
-  if (args)
-    query = setGenericQueryFilters(query, args, [
-      { column: "employeeName", ascending: true },
-    ]);
+  }
 
-  return query;
+  // Apply sorting
+  const sortColumn = args?.sorts?.[0]?.sortBy ?? "employeeName";
+  const sortAsc = args?.sorts?.[0]?.sortAsc ?? true;
+  filteredData.sort((a, b) => {
+    const aVal = a[sortColumn as keyof typeof a] ?? "";
+    const bVal = b[sortColumn as keyof typeof b] ?? "";
+    if (aVal < bVal) return sortAsc ? -1 : 1;
+    if (aVal > bVal) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  // Apply pagination
+  const count = filteredData.length;
+  if (args?.limit) {
+    const offset = args.offset ?? 0;
+    filteredData = filteredData.slice(offset, offset + args.limit);
+  }
+
+  return { data: filteredData, error: null, count };
 }
 
 export async function getTrainingAssignmentSummary(
@@ -509,7 +535,7 @@ export async function getTrainingAssignmentSummary(
   companyId: string
 ) {
   return client.rpc("get_training_assignment_summary", {
-    company_id: companyId,
+    p_company_id: companyId,
   });
 }
 
@@ -884,4 +910,32 @@ export async function getTrainingAssignmentForCompletion(
     )
     .eq("id", assignmentId)
     .single();
+}
+
+export async function getOutstandingTrainingsForUser(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  employeeId: string
+) {
+  const { data, error } = await client.rpc("get_training_assignment_status", {
+    p_company_id: companyId,
+  });
+
+  if (error) return { data: null, error };
+
+  // Filter to this employee's pending/overdue trainings
+  const filteredData = (data ?? [])
+    .filter(
+      (d) =>
+        d.employeeId === employeeId &&
+        (d.status === "Pending" || d.status === "Overdue")
+    )
+    .sort((a, b) => {
+      // Overdue first
+      if (a.status === "Overdue" && b.status !== "Overdue") return -1;
+      if (a.status !== "Overdue" && b.status === "Overdue") return 1;
+      return 0;
+    });
+
+  return { data: filteredData, error: null };
 }
