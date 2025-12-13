@@ -1,7 +1,9 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
 import { getShelvesListForLocation } from "~/modules/inventory";
 import { getCompanyId, shelvesQuery } from "~/utils/react-query";
 
@@ -13,13 +15,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const locationId = url.searchParams.get("locationId");
   if (!locationId) {
-    return json({
+    return {
       data: [],
       error: null
-    });
+    };
   }
 
-  return json(await getShelvesListForLocation(client, companyId, locationId));
+  return await getShelvesListForLocation(client, companyId, locationId);
 }
 
 export async function clientLoader({

@@ -1,9 +1,8 @@
-import { json, redirect } from "@remix-run/react";
-
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { deleteSupplierQuote } from "~/modules/purchasing";
 import { path } from "~/utils/path";
 
@@ -19,7 +18,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const quoteDelete = await deleteSupplierQuote(client, id);
 
   if (quoteDelete.error) {
-    return json(
+    return data(
       path.to.supplierQuotes,
       await flash(request, error(quoteDelete.error, quoteDelete.error.message))
     );

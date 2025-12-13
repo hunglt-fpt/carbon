@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { useMount, VStack } from "@carbon/react";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { usePanels } from "~/components/Layout";
 import { getJob, getJobOperations } from "~/modules/production";
 import { JobOperationsTable } from "~/modules/production/ui/Jobs";
@@ -53,12 +52,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  // TODO: get item inventory
-
-  return json({
+  return {
     count: operations.count ?? 0,
     operations: operations.data ?? []
-  });
+  };
 }
 
 export default function JobOperationsRoute() {

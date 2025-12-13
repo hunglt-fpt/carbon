@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet } from "@remix-run/react";
-import type { LoaderFunctionArgs, MetaFunction } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { Outlet, redirect } from "react-router";
 import { GroupedContentSidebar } from "~/components/Layout";
 import { CollapsibleSidebarProvider } from "~/components/Layout/Navigation";
 import { getAccountsList, getBaseCurrency } from "~/modules/accounting";
@@ -41,13 +40,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     baseCurrency: baseCurrency.data,
     balanceSheetAccounts:
       accounts.data.filter((a) => a.incomeBalance === "Balance Sheet") ?? [],
     incomeStatementAccounts:
       accounts.data.filter((a) => a.incomeBalance === "Income Statement") ?? []
-  });
+  };
 }
 
 export default function AccountingRoute() {

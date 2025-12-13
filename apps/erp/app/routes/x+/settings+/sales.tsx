@@ -24,11 +24,10 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useFetcher, useLoaderData } from "react-router";
 import { Users } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
 import {
@@ -64,7 +63,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         error(companySettings.error, "Failed to get company settings")
       )
     );
-  return json({ companySettings: companySettings.data, terms: terms.data });
+  return { companySettings: companySettings.data, terms: terms.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -82,7 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (validation.error) {
-        return json({ success: false, message: "Invalid form data" });
+        return { success: false, message: "Invalid form data" };
       }
 
       const digitalQuote = await updateDigitalQuoteSetting(
@@ -93,14 +92,14 @@ export async function action({ request }: ActionFunctionArgs) {
         validation.data.digitalQuoteIncludesPurchaseOrders
       );
       if (digitalQuote.error)
-        return json({ success: false, message: digitalQuote.error.message });
+        return { success: false, message: digitalQuote.error.message };
 
     case "rfq":
       const rfqValidation =
         await validator(rfqReadyValidator).validate(formData);
 
       if (rfqValidation.error) {
-        return json({ success: false, message: "Invalid form data" });
+        return { success: false, message: "Invalid form data" };
       }
 
       const rfqSettings = await updateRfqReadySetting(
@@ -110,10 +109,10 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (rfqSettings.error)
-        return json({ success: false, message: rfqSettings.error.message });
+        return { success: false, message: rfqSettings.error.message };
   }
 
-  return json({ success: true, message: "Digital quote setting updated" });
+  return { success: true, message: "Digital quote setting updated" };
 }
 
 export default function SalesSettingsRoute() {

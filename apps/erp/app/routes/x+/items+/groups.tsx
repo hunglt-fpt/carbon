@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { getAccountsList } from "~/modules/accounting";
 import { getItemPostingGroups } from "~/modules/items";
 import { ItemPostingGroupsTable } from "~/modules/items/ui/ItemPostingGroups";
@@ -54,11 +53,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     itemPostingGroups: itemPostingGroups.data ?? [],
     count: itemPostingGroups.count ?? 0,
     accounts: accounts.data ?? []
-  });
+  };
 }
 
 export default function ItemPostingGroupsRoute() {

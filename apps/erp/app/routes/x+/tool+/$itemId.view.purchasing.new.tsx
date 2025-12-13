@@ -2,9 +2,8 @@ import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { validator } from "@carbon/form";
 import { useRouteData } from "@carbon/remix";
-import { useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import type { ToolSummary } from "~/modules/items";
 import { supplierPartValidator, upsertSupplierPart } from "~/modules/items";
 import { SupplierPartForm } from "~/modules/items/ui/Item";
@@ -24,10 +23,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const validation = await validator(supplierPartValidator).validate(formData);
 
   if (validation.error) {
-    return json({
+    return {
       success: false,
       message: "Invalid form data"
-    });
+    };
   }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
@@ -41,16 +40,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (createToolSupplier.error) {
-    return json({
+    return {
       success: false,
       message: "Failed to create tool supplier"
-    });
+    };
   }
 
-  return json({
+  return {
     success: true,
     message: "Tool supplier created"
-  });
+  };
 }
 
 export default function NewToolSupplierRoute() {

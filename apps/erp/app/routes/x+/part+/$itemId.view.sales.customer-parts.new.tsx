@@ -2,9 +2,8 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
 import {
   customerPartValidator,
   getItem,
@@ -25,9 +24,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const itemData = await getItem(client, itemId);
   const readableId = itemData?.data?.readableIdWithRevision;
 
-  return json({
+  return {
     readableId
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

@@ -1,7 +1,6 @@
 import { assertIsPost, getCarbonServiceRole, notFound } from "@carbon/auth";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod/v3";
 import {
   externalSupplierQuoteValidator,
@@ -24,10 +23,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (quote.error || !quote.data) {
     console.error("Quote not found", quote.error);
-    return json({
+    return {
       success: false,
       message: "Quote not found"
-    });
+    };
   }
 
   const companySettings = await getCompanySettings(
@@ -81,10 +80,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           .eq("id", quote.data.externalLinkId);
       }
 
-      return json({
+      return {
         success: true,
         message: "Quote declined successfully"
-      });
+      };
     }
 
     case "submit": {
@@ -104,7 +103,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const selectedLinesRaw = formData.get("selectedLines") ?? "{}";
 
       if (typeof selectedLinesRaw !== "string") {
-        return json({ success: false, message: "Invalid selected lines data" });
+        return { success: false, message: "Invalid selected lines data" };
       }
 
       let parsedData: unknown;
@@ -112,10 +111,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         parsedData = JSON.parse(selectedLinesRaw);
         // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
       } catch (e) {
-        return json({
+        return {
           success: false,
           message: "Invalid JSON in selected lines data"
-        });
+        };
       }
 
       // selectedLines is Record<string, Record<number, SelectedLine>>
@@ -130,7 +129,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       if (!parseResult.success) {
         console.error("Validation error:", parseResult.error);
-        return json({ success: false, message: "Invalid selected lines data" });
+        return { success: false, message: "Invalid selected lines data" };
       }
 
       const selectedLines = parseResult.data;
@@ -254,13 +253,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         console.error("Failed to get company settings", companySettings.error);
       }
 
-      return json({
+      return {
         success: true,
         message: "Quote submitted successfully"
-      });
+      };
     }
 
     default:
-      return json({ success: false, message: "Invalid intent" });
+      return { success: false, message: "Invalid intent" };
   }
 }

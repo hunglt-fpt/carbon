@@ -1,8 +1,8 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import {
   deletePurchaseOrderLine,
   getPurchaseOrderLine
@@ -28,7 +28,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({ purchaseOrderLine: purchaseOrderLine.data });
+  return { purchaseOrderLine: purchaseOrderLine.data };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

@@ -1,14 +1,16 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
 import { getShippingMethodsList } from "~/modules/inventory";
 import { getCompanyId, shippingMethodsQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {});
 
-  return json(await getShippingMethodsList(client, companyId));
+  return await getShippingMethodsList(client, companyId);
 }
 
 export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {

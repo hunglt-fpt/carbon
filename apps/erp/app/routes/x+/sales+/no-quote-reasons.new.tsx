@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import { noQuoteReasonValidator, upsertNoQuoteReason } from "~/modules/sales";
 import NoQuoteReasonForm from "~/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm";
 
@@ -45,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (insertNoQuoteReason.error) {
     return modal
-      ? json(insertNoQuoteReason)
+      ? insertNoQuoteReason
       : redirect(
           requestReferrer(request) ??
             `${path.to.noQuoteReasons}?${getParams(request)}`,
@@ -57,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertNoQuoteReason)
+    ? insertNoQuoteReason
     : redirect(
         `${path.to.noQuoteReasons}?${getParams(request)}`,
         await flash(request, success("No quote reason created"))

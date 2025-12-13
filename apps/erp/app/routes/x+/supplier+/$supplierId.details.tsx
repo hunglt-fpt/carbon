@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { SupplierDetail } from "~/modules/purchasing";
 import { supplierValidator, upsertSupplier } from "~/modules/purchasing";
@@ -47,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json(null, await flash(request, success("Updated supplier")));
+  return data(null, await flash(request, success("Updated supplier")));
 }
 
 export default function SupplierEditRoute() {

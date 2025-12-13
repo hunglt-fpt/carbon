@@ -8,10 +8,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { useParams } from "@remix-run/react";
 import { FunctionRegion } from "@supabase/supabase-js";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { Shipment, ShipmentLine } from "~/modules/inventory";
 import {
@@ -46,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const currentShipment = await getShipment(client, id);
   if (currentShipment.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -155,7 +154,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (updateShipment.error) {
-      return json(
+      return data(
         {},
         await flash(
           request,

@@ -9,10 +9,15 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Card, CardHeader, CardTitle, Spinner } from "@carbon/react";
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
 import { Fragment, Suspense } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import { CadModel } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
 import { getItemReplenishment } from "~/modules/items";
@@ -68,7 +73,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const itemId = line.data.itemId;
 
-  return defer({
+  return {
     line: line?.data ?? null,
     itemReplenishment:
       itemId && line.data.methodType === "Make"
@@ -77,7 +82,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     files: getOpportunityLineDocuments(serviceRole, companyId, lineId, itemId),
     jobs: jobs?.data ?? [],
     shipments: shipments?.data ?? []
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

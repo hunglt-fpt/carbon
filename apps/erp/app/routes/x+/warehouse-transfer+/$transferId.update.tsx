@@ -2,8 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { z } from "zod/v3";
 import { updateWarehouseTransferStatus } from "~/modules/inventory";
 import { warehouseTransferStatusType } from "~/modules/inventory/inventory.models";
@@ -36,7 +36,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 
   if (result.error) {
-    return json(
+    return data(
       { error: result.error },
       await flash(
         request,
@@ -45,7 +45,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json(
+  return data(
     { success: true },
     await flash(request, success("Updated warehouse transfer status"))
   );

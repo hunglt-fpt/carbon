@@ -3,9 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { ScrollArea } from "@carbon/react";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import { issueWorkflowValidator } from "~/modules/quality/quality.models";
 import {
   getRequiredActionsList,
@@ -21,9 +20,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const requiredActions = await getRequiredActionsList(client, companyId);
 
-  return json({
+  return {
     requiredActions: requiredActions.data ?? []
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -48,7 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (insertIssueWorkflow.error || !insertIssueWorkflow.data?.id) {
-    return json(
+    return data(
       {},
       await flash(
         request,

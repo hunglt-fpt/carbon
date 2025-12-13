@@ -31,10 +31,15 @@ import {
   startOfWeek,
   toCalendarDate
 } from "@internationalized/date";
-import { useLoaderData, useNavigate, useSearchParams } from "@remix-run/react";
-import { json, type LoaderFunctionArgs, redirect } from "@vercel/remix";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuChevronLeft, LuChevronRight, LuSettings2 } from "react-icons/lu";
+import {
+  type LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+  useNavigate,
+  useSearchParams
+} from "react-router";
 import { SearchFilter } from "~/components";
 import { useLocations } from "~/components/Form/Location";
 import { ActiveFilters, Filter } from "~/components/Table/components/Filter";
@@ -456,7 +461,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // Combine all jobs for sales orders and tags
   const allJobs = [...filteredJobs, ...filteredUnscheduledJobs];
 
-  return json({
+  return {
     columns,
     items: [...unscheduledItems, ...scheduledItems] satisfies JobItem[],
     salesOrders: Object.entries(
@@ -486,7 +491,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     locationId,
     view,
     currentDate: currentDate.toString()
-  });
+  };
 }
 
 const defaultDisplaySettings: DisplaySettings = {

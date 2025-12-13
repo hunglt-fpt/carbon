@@ -4,10 +4,9 @@ import { flash } from "@carbon/auth/session.server";
 import { notifyIssueCreated } from "@carbon/ee/notifications";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { useLoaderData } from "@remix-run/react";
 import { FunctionRegion } from "@supabase/supabase-js";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
 import {
   deleteIssue,
@@ -41,11 +40,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getRequiredActionsList(client, companyId)
   ]);
 
-  return json({
+  return {
     workflows: workflows.data ?? [],
     types: types.data ?? [],
     requiredActions: requiredActions.data ?? []
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

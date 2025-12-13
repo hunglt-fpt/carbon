@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import {
   getGaugeCalibrationRecords,
   getGaugeTypesList
@@ -43,12 +42,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
       getCompanySettings(client, companyId)
     ]);
 
-  return json({
+  return {
     gaugeCalibrationRecords: gaugeCalibrationRecords.data ?? [],
     count: gaugeCalibrationRecords.count ?? 0,
     gaugeTypes: gaugeTypes.data ?? [],
     useMetric: companySettings.data?.useMetric ?? false
-  });
+  };
 }
 
 export default function GaugesRoute() {

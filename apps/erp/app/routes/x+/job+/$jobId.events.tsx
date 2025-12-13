@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { useMount, VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { usePanels } from "~/components/Layout";
 import {
   getJobOperationsList,
@@ -41,12 +40,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   if (operations.data?.length === 0) {
-    return json({
+    return {
       count: 0,
       events: [],
       workCenters: [],
       operations: []
-    });
+    };
   }
 
   const [events, workCenters] = await Promise.all([
@@ -67,12 +66,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: events.count ?? 0,
     events: events.data ?? [],
     workCenters: workCenters.data ?? [],
     operations: operations.data ?? []
-  });
+  };
 }
 
 export default function ProductionEventsRoute() {

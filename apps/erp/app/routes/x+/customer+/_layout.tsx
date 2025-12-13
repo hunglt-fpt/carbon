@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet } from "@remix-run/react";
-import type { LoaderFunctionArgs, MetaFunction } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router";
+import { Outlet } from "react-router";
 import { getCustomerStatuses, getCustomerTypes } from "~/modules/sales";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -33,11 +32,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // getShippingTermsList(client, companyId),
   ]);
 
-  return json({
+  return {
     customerStatuses: customerStatuses.data ?? [],
     customerTypes: customerTypes.data ?? []
     // shippingTerms: shippingTerms.data ?? [],
-  });
+  };
 }
 
 export default function CustomerRoute() {

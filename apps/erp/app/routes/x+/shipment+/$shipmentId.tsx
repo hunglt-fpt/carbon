@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider } from "~/components/Layout";
 import {
   getShipment,
@@ -46,7 +45,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect(path.to.shipments);
   }
 
-  return defer({
+  return {
     shipment: shipment.data,
     shipmentLines: shipmentLines.data ?? [],
     shipmentLineTracking: shipmentLineTracking.data ?? [],
@@ -55,7 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       shipmentId,
       shipment.data?.sourceDocumentId ?? ""
     )
-  });
+  };
 }
 
 export default function ShipmentRoute() {

@@ -1,24 +1,24 @@
-import { validationError, validator } from "@carbon/form";
 import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { validationError, validator } from "@carbon/form";
 import { NotificationEvent } from "@carbon/notifications";
+import { tasks } from "@trigger.dev/sdk";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
+  data,
   redirect,
   useLoaderData,
   useNavigate,
   useParams
-} from "@remix-run/react";
-import { tasks } from "@trigger.dev/sdk";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+} from "react-router";
 import {
   getTrainingAssignment,
   getTrainingAssignmentStatus,
   getTrainingsList,
+  TrainingAssignmentForm,
   trainingAssignmentValidator,
-  upsertTrainingAssignment,
-  TrainingAssignmentForm
+  upsertTrainingAssignment
 } from "~/modules/resources";
 import type {
   TrainingAssignmentStatusItem,
@@ -76,12 +76,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const currentPeriod =
     filteredStatus.length > 0 ? filteredStatus[0].currentPeriod : null;
 
-  return json({
+  return {
     assignment: assignment.data,
     trainings: (trainings.data ?? []) as TrainingListItem[],
     assignmentStatus: filteredStatus as TrainingAssignmentStatusItem[],
     currentPeriod
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -92,7 +92,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { assignmentId } = params;
   if (!assignmentId) {
-    return json({ error: "Assignment ID is required" }, { status: 400 });
+    return data({ error: "Assignment ID is required" }, { status: 400 });
   }
 
   const formData = await request.formData();
@@ -115,7 +115,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (result.error) {
-    return json(
+    return data(
       { error: result.error.message },
       {
         status: 500,

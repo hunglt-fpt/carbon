@@ -3,10 +3,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone } from "@internationalized/date";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs
+} from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import { useUser } from "~/hooks";
 import {
   LocationForm,
@@ -44,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (createLocation.error) {
     return modal
-      ? json(createLocation)
+      ? createLocation
       : redirect(
           path.to.locations,
           await flash(
@@ -55,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(createLocation)
+    ? createLocation
     : redirect(
         path.to.locations,
         await flash(request, success("Location created"))

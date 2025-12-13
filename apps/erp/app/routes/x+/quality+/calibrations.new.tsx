@@ -4,12 +4,11 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { useUrlParams } from "@carbon/remix";
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { useLoaderData, useNavigate } from "@remix-run/react";
 import type { FileObject } from "@supabase/storage-js";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { nanoid } from "nanoid";
 import { useEffect } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
   gaugeCalibrationRecordValidator,
   getQualityFiles,
@@ -30,18 +29,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const gaugeId = url.searchParams.get("gaugeId");
 
   if (id) {
-    return json({
+    return {
       id,
       gaugeId,
       files: await getQualityFiles(client, id, companyId)
-    });
+    };
   }
 
-  return json({
+  return {
     id: nanoid(),
     gaugeId,
     files: [] as FileObject[]
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

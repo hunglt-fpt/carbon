@@ -2,8 +2,7 @@ import { assertIsPost, getCarbonServiceRole, notFound } from "@carbon/auth";
 import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";
 import { tasks } from "@trigger.dev/sdk";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import {
   convertQuoteToOrder,
   getQuoteByExternalId,
@@ -25,10 +24,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (quote.error) {
     console.error("Quote not found", quote.error);
-    return json({
+    return {
       success: false,
       message: "Quote not found"
-    });
+    };
   }
 
   const companySettings = await getCompanySettings(
@@ -48,7 +47,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const file = formData.get("file");
 
       if (typeof selectedLinesRaw !== "string") {
-        return json({ success: false, message: "Invalid selected lines data" });
+        return { success: false, message: "Invalid selected lines data" };
       }
 
       const parseResult = selectedLinesValidator.safeParse(
@@ -57,7 +56,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       if (!parseResult.success) {
         console.error("Validation error:", parseResult.error);
-        return json({ success: false, message: "Invalid selected lines data" });
+        return { success: false, message: "Invalid selected lines data" };
       }
 
       const selectedLines = parseResult.data;
@@ -82,18 +81,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       if (convert.error) {
         console.error("Failed to convert quote to order", convert.error);
-        return json({
+        return {
           success: false,
           message: "Failed to convert quote to order"
-        });
+        };
       }
 
       if (companySettings.error) {
         console.error("Failed to get company settings", companySettings.error);
-        return json({
+        return {
           success: false,
           message: "Failed to send notification"
-        });
+        };
       }
 
       if (companySettings.data?.digitalQuoteNotificationGroup?.length) {
@@ -110,10 +109,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         } catch (err) {
           console.error("Failed to trigger notification", err);
-          return json({
+          return {
             success: false,
             message: "Failed to send notification"
-          });
+          };
         }
       }
 
@@ -126,10 +125,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         if (fileUpload.error) {
           console.error("Failed to upload file", fileUpload.error);
-          return json({
+          return {
             success: false,
             message: "Failed to upload file"
-          });
+          };
         }
 
         const updateOpportunity = await serviceRole
@@ -147,10 +146,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
         }
       }
 
-      return json({
+      return {
         success: true,
         message: "Quote accepted!"
-      });
+      };
 
     case "reject":
       const digitalQuoteRejectedBy = String(
@@ -171,10 +170,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       if (rejectQuote.error) {
         console.error("Failed to reject quote", rejectQuote.error);
-        return json({
+        return {
           success: false,
           message: "Failed to reject quote"
-        });
+        };
       }
 
       if (companySettings.data?.digitalQuoteNotificationGroup?.length) {
@@ -191,19 +190,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
           });
         } catch (err) {
           console.error("Failed to trigger notification", err);
-          return json({
+          return {
             success: false,
             message: "Failed to send notification"
-          });
+          };
         }
       }
 
-      return json({
+      return {
         success: true,
         message: "Quote rejected!"
-      });
+      };
 
     default:
-      return json({ success: false, message: "Invalid type" });
+      return { success: false, message: "Invalid type" };
   }
 }

@@ -2,13 +2,15 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
-  ShelfForm,
   getShelf,
+  ShelfForm,
   shelfValidator,
   upsertShelf
 } from "~/modules/inventory";
@@ -27,9 +29,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const shelf = await getShelf(client, shelfId);
 
-  return json({
+  return {
     shelf: shelf?.data ?? null
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -56,7 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (updateShelf.error) {
-    return json(
+    return data(
       {},
       await flash(request, error(updateShelf.error, "Failed to update shelf"))
     );

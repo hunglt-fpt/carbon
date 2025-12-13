@@ -1,7 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { scheduleJobUpdateValidator } from "~/modules/production/production.models";
 import { triggerJobReschedule } from "~/modules/production/production.service";
 
@@ -15,10 +14,10 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json({
+    return {
       success: false,
       message: "Invalid form data"
-    });
+    };
   }
 
   // Parse the columnId to determine the due date
@@ -47,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
     .eq("id", validation.data.id);
 
   if (error) {
-    return json({ success: false, message: error.message });
+    return { success: false, message: error.message };
   }
 
   // Trigger background job rescheduling
@@ -58,5 +57,5 @@ export async function action({ request }: ActionFunctionArgs) {
     console.error("Failed to trigger job reschedule:", rescheduleError);
   }
 
-  return json({ success: true });
+  return { success: true };
 }

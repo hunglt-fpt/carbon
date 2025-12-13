@@ -4,10 +4,15 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
 import { Fragment, Suspense } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import { CadModel } from "~/components";
 import { usePermissions } from "~/hooks";
 import {
@@ -46,10 +51,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const itemId = line.data.itemId;
 
-  return defer({
+  return {
     line: line.data,
     files: getOpportunityLineDocuments(serviceRole, companyId, lineId, itemId)
-  });
+  };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {

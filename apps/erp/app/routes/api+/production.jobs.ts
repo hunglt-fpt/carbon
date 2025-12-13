@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getJobsList } from "~/modules/production";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -8,5 +7,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "production"
   });
 
-  return json(await getJobsList(client, companyId));
+  return await getJobsList(client, companyId);
 }

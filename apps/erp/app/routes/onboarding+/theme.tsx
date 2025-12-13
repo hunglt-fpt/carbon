@@ -15,18 +15,18 @@ import {
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
 import { type Theme, themes } from "@carbon/utils";
+import { useEffect, useRef, useState } from "react";
+import { BiMoon, BiSun } from "react-icons/bi";
+import { RxCheck } from "react-icons/rx";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Link,
+  redirect,
   useFetcher,
   useLoaderData,
   useNavigation,
   useSubmit
-} from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-import { useEffect, useRef, useState } from "react";
-import { BiMoon, BiSun } from "react-icons/bi";
-import { RxCheck } from "react-icons/rx";
+} from "react-router";
 import { useOnboarding } from "~/hooks";
 import { type Theme as ThemeValue, themeValidator } from "~/modules/settings";
 import type { action as modeAction } from "~/root";
@@ -42,9 +42,9 @@ export const handle: Handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const theme = getTheme(request);
 
-  return json({
+  return {
     theme: theme ?? "zinc"
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

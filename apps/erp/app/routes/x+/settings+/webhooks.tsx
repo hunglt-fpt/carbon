@@ -1,8 +1,12 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import { json, redirect, type LoaderFunctionArgs } from "@vercel/remix";
+import {
+  type LoaderFunctionArgs,
+  Outlet,
+  redirect,
+  useLoaderData
+} from "react-router";
 import { getConfig, getWebhooks } from "~/modules/settings";
 import { WebhooksTable } from "~/modules/settings/ui/Webhooks";
 import type { Handle } from "~/utils/handle";
@@ -56,11 +60,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     webhooks: webhooks.data ?? [],
     count: webhooks.count ?? 0,
     config: config.data
-  });
+  };
 }
 
 export default function WebhooksRoute() {

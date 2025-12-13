@@ -2,10 +2,11 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs
+} from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import { useUser } from "~/hooks";
 import {
   upsertWorkCenter,
@@ -42,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (createWorkCenter.error) {
     return modal
-      ? json(createWorkCenter)
+      ? createWorkCenter
       : redirect(
           path.to.workCenters,
           await flash(
@@ -52,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
   }
 
-  return modal ? json(createWorkCenter) : redirect(path.to.workCenters);
+  return modal ? createWorkCenter : redirect(path.to.workCenters);
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {

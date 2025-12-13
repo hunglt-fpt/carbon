@@ -1,14 +1,16 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
 import { getCurrenciesList } from "~/modules/accounting";
 import { currenciesQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {});
 
-  return json(await getCurrenciesList(client));
+  return await getCurrenciesList(client);
 }
 
 export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {

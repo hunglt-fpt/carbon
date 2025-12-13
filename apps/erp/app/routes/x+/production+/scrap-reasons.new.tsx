@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import { scrapReasonValidator, upsertScrapReason } from "~/modules/production";
 import ScrapReasonForm from "~/modules/production/ui/ScrapReasons/ScrapReasonForm";
 import { setCustomFields } from "~/utils/form";
@@ -44,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (insertScrapReason.error) {
     return modal
-      ? json(insertScrapReason)
+      ? insertScrapReason
       : redirect(
           requestReferrer(request) ??
             `${path.to.scrapReasons}?${getParams(request)}`,
@@ -56,7 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertScrapReason)
+    ? insertScrapReason
     : redirect(
         `${path.to.scrapReasons}?${getParams(request)}`,
         await flash(request, success("Scrap reason created"))

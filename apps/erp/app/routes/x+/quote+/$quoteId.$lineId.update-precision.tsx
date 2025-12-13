@@ -1,6 +1,6 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import {
   updateQuoteLinePrecision,
   upsertQuoteLinePrices
@@ -27,7 +27,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     precision
   );
   if (updatePrecision.error) {
-    return json(
+    return data(
       { data: null, error: updatePrecision.error.message },
       { status: 400 }
     );
@@ -56,12 +56,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       roundedPrices
     );
     if (updatePrices.error) {
-      return json(
+      return data(
         { data: null, error: updatePrices.error.message },
         { status: 400 }
       );
     }
   }
 
-  return json({ data: null, error: null });
+  return { data: null, error: null };
 }

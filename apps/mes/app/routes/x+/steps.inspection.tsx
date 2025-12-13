@@ -1,8 +1,8 @@
 import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -19,18 +19,18 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("jobOperationStep")
         .insert(insertedSteps);
       if (result.error) {
-        return json(
+        return data(
           { success: false, message: result.error.message },
           { status: 400 }
         );
       }
 
-      return json({ success: true });
+      return { success: true };
     } else {
-      return json({ success: true });
+      return { success: true };
     }
   } else {
-    return json(
+    return data(
       { success: false, message: "Payload is not an array" },
       { status: 400 }
     );

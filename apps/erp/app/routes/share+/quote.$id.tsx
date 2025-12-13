@@ -37,10 +37,7 @@ import {
 import { useMode } from "@carbon/remix";
 import { formatCityStatePostalCode, formatDate } from "@carbon/utils";
 import { useLocale } from "@react-aria/i18n";
-import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
 import { motion } from "framer-motion";
 import MotionNumber from "motion-number";
 import type { Dispatch, SetStateAction } from "react";
@@ -54,6 +51,8 @@ import {
   LuTruck,
   LuUpload
 } from "react-icons/lu";
+import type { LoaderFunctionArgs } from "react-router";
+import { useFetcher, useLoaderData, useParams } from "react-router";
 import { usePercentFormatter } from "~/hooks";
 import { getPaymentTermsList } from "~/modules/accounting";
 import { getShippingMethodsList } from "~/modules/inventory";
@@ -221,11 +220,11 @@ const translations = {
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) {
-    return json({
+    return {
       state: QuoteState.NotFound,
       data: null,
       strings: translations.en
-    });
+    };
   }
   const locale = (request.headers.get("Accept-Language") || "en-US").substring(
     0,
@@ -238,11 +237,11 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const quote = await getQuoteByExternalId(serviceRole, id);
 
   if (quote.error) {
-    return json({
+    return {
       state: QuoteState.NotFound,
       data: null,
       strings
-    });
+    };
   }
 
   if (
@@ -250,11 +249,11 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     new Date(quote.data.expirationDate) < new Date() &&
     quote.data.status === "Sent"
   ) {
-    return json({
+    return {
       state: QuoteState.Expired,
       data: null,
       strings
-    });
+    };
   }
 
   const [
@@ -327,7 +326,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       return acc;
     }, {}) ?? {};
 
-  return json({
+  return {
     state: QuoteState.Valid,
     data: {
       quote: quote.data,
@@ -352,7 +351,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       salesOrderLines: salesOrderLines?.data ?? null
     },
     strings
-  });
+  };
 }
 
 const Header = ({

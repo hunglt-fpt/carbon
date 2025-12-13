@@ -1,18 +1,11 @@
-import type { JSONContent } from "@carbon/react";
-import { Spinner, useMount, VStack } from "@carbon/react";
-import {
-  Await,
-  defer,
-  redirect,
-  useLoaderData,
-  useParams
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import type { JSONContent } from "@carbon/react";
+import { Spinner, useMount, VStack } from "@carbon/react";
 import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { usePanels } from "~/components/Layout";
 import { usePermissions, useRouteData } from "~/hooks";
@@ -88,7 +81,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     job: job.data,
     materials:
       materials?.data.map((m) => ({
@@ -115,7 +108,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ),
     model: getModelByItemId(client, makeMethod.data.itemId!),
     tags: tags.data ?? []
-  });
+  };
 }
 
 export default function JobMakeMethodRoute() {

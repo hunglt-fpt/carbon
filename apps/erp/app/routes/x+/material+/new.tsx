@@ -2,8 +2,8 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, json, redirect } from "react-router";
 import { materialValidator, upsertMaterial } from "~/modules/items";
 import { MaterialForm } from "~/modules/items/ui/Materials";
 import { setCustomFields } from "~/utils/form";
@@ -40,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (createMaterial.error) {
     return modal
-      ? json(
+      ? data(
           createMaterial,
           await flash(
             request,
@@ -60,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Material ID not found");
 
   return modal
-    ? json(createMaterial, { status: 201 })
+    ? data(createMaterial, { status: 201 })
     : redirect(path.to.material(itemId));
 }
 

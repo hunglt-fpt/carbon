@@ -11,10 +11,7 @@ import {
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import { useNumberFormatter } from "@react-aria/i18n";
-import { useLoaderData, useParams } from "@remix-run/react";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer } from "@vercel/remix";
 import { useMemo } from "react";
 import {
   LuBookMarked,
@@ -23,6 +20,8 @@ import {
   LuShield,
   LuShieldCheck
 } from "react-icons/lu";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData, useParams } from "react-router";
 import { z } from "zod/v3";
 import {
   BreadcrumbItem,
@@ -146,14 +145,14 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     getJobOperationAttachments(serviceRole, jobOperationIds ?? [])
   ]);
 
-  return defer({
+  return {
     customer: customer.data,
     company: company.data,
     salesOrderLines: salesOrderLines.data ?? [],
     jobOperationAttachments,
     count: salesOrderLines.count,
     thumbnails
-  });
+  };
 }
 
 export default function CustomerPortal() {

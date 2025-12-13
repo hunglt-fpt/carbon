@@ -1,7 +1,9 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
 import { getShelvesListForLocation } from "~/modules/inventory";
 import { getItemShelfQuantities } from "~/modules/items/items.service";
 import { getCompanyId, shelvesQuery } from "~/utils/react-query";
@@ -16,10 +18,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const itemId = url.searchParams.get("itemId");
 
   if (!locationId) {
-    return json({
+    return {
       data: [],
       error: null
-    });
+    };
   }
 
   // If itemId is provided, get shelves with quantities
@@ -30,10 +32,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ]);
 
     if (shelvesResult.error || quantitiesResult.error) {
-      return json({
+      return {
         data: [],
         error: shelvesResult.error || quantitiesResult.error
-      });
+      };
     }
 
     // Filter shelves to only include those with quantities > 0
@@ -53,14 +55,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
       quantity: quantitiesMap.get(shelf.id) ?? 0
     }));
 
-    return json({
+    return {
       data: shelvesWithQuantityData,
       error: null
-    });
+    };
   }
 
-  // If no itemId, return all shelves for the location
-  return json(await getShelvesListForLocation(client, companyId, locationId));
+  return await getShelvesListForLocation(client, companyId, locationId);
 }
 
 export async function clientLoader({

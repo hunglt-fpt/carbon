@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import {
   getSalesInvoice,
@@ -62,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       : null
   ]);
 
-  return defer({
+  return {
     salesInvoice: salesInvoice.data,
     salesInvoiceLines: salesInvoiceLines.data ?? [],
     salesInvoiceShipment: salesInvoiceShipment.data,
@@ -73,7 +72,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ),
     opportunity: opportunity?.data ?? null,
     customer: customer?.data ?? null
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

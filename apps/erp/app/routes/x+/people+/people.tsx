@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { getAttributeCategories, getPeople } from "~/modules/people";
 import { PeopleTable } from "~/modules/people/ui/People";
 import { getEmployeeTypes } from "~/modules/users";
@@ -55,12 +54,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     attributeCategories: attributeCategories.data,
     employeeTypes: employeeTypes.data ?? [],
     people: people.data?.filter((p) => !p.email?.includes("@carbon.ms")) ?? [],
     count: people.count
-  });
+  };
 }
 
 export default function ResourcesPeopleRoute() {

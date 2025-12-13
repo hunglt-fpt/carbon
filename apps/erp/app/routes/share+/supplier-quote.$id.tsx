@@ -33,29 +33,28 @@ import {
 import { useMode } from "@carbon/remix";
 import { formatDate } from "@carbon/utils";
 import { useLocale } from "@react-aria/i18n";
-import { useFetcher, useLoaderData, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
 import { motion } from "framer-motion";
+import type { Dispatch, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import { LuChevronRight, LuImage, LuPencil } from "react-icons/lu";
-import type { Company } from "~/modules/settings";
-import { getCompany, getCompanySettings } from "~/modules/settings";
-import { getBase64ImageFromSupabase } from "~/modules/shared";
-import { path } from "~/utils/path";
+import type { LoaderFunctionArgs } from "react-router";
+import { useFetcher, useLoaderData, useParams } from "react-router";
+import { externalSupplierQuoteValidator } from "~/modules/purchasing/purchasing.models";
 import {
   getSupplierQuoteByExternalId,
-  getSupplierQuoteLines,
-  getSupplierQuoteLinePricesByQuoteId
+  getSupplierQuoteLinePricesByQuoteId,
+  getSupplierQuoteLines
 } from "~/modules/purchasing/purchasing.service";
 import type {
   SupplierQuote,
   SupplierQuoteLine,
   SupplierQuoteLinePrice
 } from "~/modules/purchasing/types";
+import type { Company } from "~/modules/settings";
+import { getCompany, getCompanySettings } from "~/modules/settings";
+import { getBase64ImageFromSupabase } from "~/modules/shared";
 import type { action } from "~/routes/api+/purchasing.digital-quote.$id";
-import { externalSupplierQuoteValidator } from "~/modules/purchasing/purchasing.models";
-import type { Dispatch, SetStateAction } from "react";
+import { path } from "~/utils/path";
 
 export const meta = () => {
   return [{ title: "Supplier Quote" }];
@@ -80,20 +79,20 @@ type SelectedLine = {
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) {
-    return json({
+    return {
       state: QuoteState.NotFound,
       data: null
-    });
+    };
   }
 
   const serviceRole = getCarbonServiceRole();
   const quote = await getSupplierQuoteByExternalId(serviceRole, id);
 
   if (quote.error) {
-    return json({
+    return {
       state: QuoteState.NotFound,
       data: null
-    });
+    };
   }
 
   // Update lastAccessedAt on externalLink when the page is loaded
@@ -111,10 +110,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     new Date(quote.data.expirationDate) < new Date() &&
     quote.data.status === "Draft"
   ) {
-    return json({
+    return {
       state: QuoteState.Expired,
       data: null
-    });
+    };
   }
 
   const [company, companySettings, quoteLines, quoteLinePrices] =
@@ -158,7 +157,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       return acc;
     }, {}) ?? {};
 
-  return json({
+  return {
     state: QuoteState.Valid,
     data: {
       quote: quote.data,
@@ -168,7 +167,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       thumbnails: thumbnails,
       quoteLinePrices: quoteLinePrices.data ?? []
     }
-  });
+  };
 }
 
 // rounded icon in badge class name "rounded-full"

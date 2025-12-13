@@ -1,8 +1,12 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import { json, redirect, type LoaderFunctionArgs } from "@vercel/remix";
+import {
+  type LoaderFunctionArgs,
+  Outlet,
+  redirect,
+  useLoaderData
+} from "react-router";
 import { ApiKeysTable, getApiKeys } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -38,14 +42,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     apiKeys:
       apiKeys.data?.map((apiKey) => ({
         ...apiKey,
         key: apiKey.key.substring(0, 12) + "…"
       })) ?? [],
     count: apiKeys.count ?? 0
-  });
+  };
 }
 
 export default function ApiKeysRoute() {

@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import type { CompanyPermission } from "~/modules/users";
 import {
   EmployeeTypeForm,
@@ -30,9 +29,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     permissions: makeEmptyPermissionsFromModules(modules.data)
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -58,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const jsonValidation =
     employeeTypePermissionsValidator.safeParse(permissions);
   if (jsonValidation.success === false) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -72,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId
   });
   if (createEmployeeType.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -83,7 +82,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const employeeTypeId = createEmployeeType.data?.id;
   if (!employeeTypeId) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -99,7 +98,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (insertEmployeeTypePermissions.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

@@ -2,7 +2,7 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import {
   methodOperationValidator,
   upsertMethodOperation
@@ -37,7 +37,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     customFields: setCustomFields(formData)
   });
   if (updateMethodOperation.error) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -50,7 +50,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const methodOperationId = updateMethodOperation.data?.id;
   if (!methodOperationId) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -61,9 +61,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     id: methodOperationId,
     success: true,
     message: "Operation updated"
-  });
+  };
 }

@@ -1,10 +1,10 @@
 import {
   assertIsPost,
-  carbonClient,
   CarbonEdition,
   CLOUDFLARE_TURNSTILE_SECRET_KEY,
   CLOUDFLARE_TURNSTILE_SITE_KEY,
   CONTROLLED_ENVIRONMENT,
+  carbonClient,
   error,
   magicLinkValidator,
   RATE_LIMIT
@@ -27,16 +27,15 @@ import {
 import { ItarLoginDisclaimer, useMode } from "@carbon/remix";
 import { Edition } from "@carbon/utils";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { useFetcher, useSearchParams } from "@remix-run/react";
 import { Ratelimit } from "@upstash/ratelimit";
+import { useEffect, useState } from "react";
+import { LuCircleAlert } from "react-icons/lu";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction
-} from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-import { useEffect, useState } from "react";
-import { LuCircleAlert } from "react-icons/lu";
+} from "react-router";
+import { data, redirect, useFetcher, useSearchParams } from "react-router";
 
 import type { FormActionData, Result } from "~/types";
 import { path } from "~/utils/path";
@@ -66,7 +65,7 @@ export async function action({ request }: ActionFunctionArgs): FormActionData {
   const { success } = await ratelimit.limit(ip);
 
   if (!success) {
-    return json(
+    return data(
       error(null, "Rate limit exceeded"),
       await flash(request, error(null, "Rate limit exceeded"))
     );
@@ -77,7 +76,7 @@ export async function action({ request }: ActionFunctionArgs): FormActionData {
   );
 
   if (validation.error) {
-    return json(error(validation.error, "Invalid email address"));
+    return error(validation.error, "Invalid email address");
   }
 
   const { email, turnstileToken } = validation.data;
@@ -103,7 +102,7 @@ export async function action({ request }: ActionFunctionArgs): FormActionData {
 
     const verifyData = await verifyResponse.json();
     if (!verifyData.success) {
-      return json(
+      return data(
         error(null, "Bot verification failed. Please try again."),
         await flash(
           request,
@@ -119,15 +118,14 @@ export async function action({ request }: ActionFunctionArgs): FormActionData {
     const magicLink = await sendMagicLink(email);
 
     if (magicLink.error) {
-      return json(
+      return data(
         error(magicLink, "Failed to send magic link"),
         await flash(request, error(magicLink, "Failed to send magic link"))
       );
     }
-    return json({ success: true, mode: "login" });
+    return { success: true, mode: "login" };
   } else if (CarbonEdition === Edition.Enterprise) {
-    // Enterprise edition does not support signup
-    return json(
+    return data(
       { success: false, message: "User record not found" },
       await flash(request, error(null, "Failed to sign in"))
     );
@@ -136,13 +134,13 @@ export async function action({ request }: ActionFunctionArgs): FormActionData {
     const verificationSent = await sendVerificationCode(email);
 
     if (!verificationSent) {
-      return json(
+      return data(
         error(null, "Failed to send verification code"),
         await flash(request, error(null, "Failed to send verification code"))
       );
     }
 
-    return json({ success: true, mode: "signup", email });
+    return { success: true, mode: "signup", email };
   }
 }
 

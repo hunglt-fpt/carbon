@@ -2,7 +2,7 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs } from "react-router";
 import { upsertJobOperationParameter } from "~/modules/production";
 import { operationParameterValidator } from "~/modules/shared";
 
@@ -14,7 +14,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { id } = params;
   if (!id) {
-    return json({ success: false, message: "Invalid operation parameter id" });
+    return { success: false, message: "Invalid operation parameter id" };
   }
 
   const formData = await request.formData();
@@ -23,7 +23,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json({ success: false, message: "Invalid form data" });
+    return { success: false, message: "Invalid form data" };
   }
 
   const { id: _id, ...data } = validation.data;
@@ -36,7 +36,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     updatedAt: new Date().toISOString()
   });
   if (update.error) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -49,7 +49,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const operationParameterId = update.data?.id;
   if (!operationParameterId) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -60,7 +60,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json(
+  return data(
     { id: operationParameterId },
     await flash(request, success("Job operation parameter updated"))
   );

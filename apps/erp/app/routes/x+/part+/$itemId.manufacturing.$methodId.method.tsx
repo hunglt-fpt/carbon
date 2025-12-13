@@ -3,11 +3,10 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { Menubar, VStack } from "@carbon/react";
-import { Await, useLoaderData, useParams } from "@remix-run/react";
 import type { PostgrestResponse } from "@supabase/supabase-js";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { Suspense } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
 import type { z } from "zod/v3";
 import CadModel from "~/components/CadModel";
 import { usePermissions, useRouteData } from "~/hooks";
@@ -42,7 +41,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const tags = await getTagsList(client, companyId, "operation");
 
-  return json({ tags: tags.data ?? [] });
+  return { tags: tags.data ?? [] };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

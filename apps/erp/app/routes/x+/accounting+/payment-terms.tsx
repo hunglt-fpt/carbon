@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { getPaymentTerms } from "~/modules/accounting";
 import { PaymentTermsTable } from "~/modules/accounting/ui/PaymentTerms";
 import type { Handle } from "~/utils/handle";
@@ -26,15 +25,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  return json(
-    await getPaymentTerms(client, companyId, {
-      search,
-      limit,
-      offset,
-      sorts,
-      filters
-    })
-  );
+  return await getPaymentTerms(client, companyId, {
+    search,
+    limit,
+    offset,
+    sorts,
+    filters
+  });
 }
 
 export default function PaymentTermsRoute() {

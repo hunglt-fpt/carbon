@@ -2,7 +2,7 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import { upsertQuoteOperationParameter } from "~/modules/sales";
 import { operationParameterValidator } from "~/modules/shared";
 
@@ -27,7 +27,7 @@ export async function action({ request }: ActionFunctionArgs) {
     createdBy: userId
   });
   if (insert.error) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -40,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const quoteOperationParameterId = insert.data?.id;
   if (!quoteOperationParameterId) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -51,5 +51,5 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json({ id: quoteOperationParameterId });
+  return { id: quoteOperationParameterId };
 }

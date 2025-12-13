@@ -5,7 +5,7 @@ import {
   LinearClient,
   linkActionToLinearIssue
 } from "@carbon/ee/linear";
-import { json, type ActionFunction, type LoaderFunction } from "@vercel/remix";
+import { type ActionFunction, data, type LoaderFunction } from "react-router";
 import { getIssueAction } from "~/modules/quality/quality.service";
 
 const linear = new LinearClient();
@@ -42,7 +42,7 @@ export const action: ActionFunction = async ({ request }) => {
     });
 
     if (!linked || linked.data?.length === 0) {
-      return json({ success: false, message: "Failed to link issue" });
+      return { success: false, message: "Failed to link issue" };
     }
 
     const nonConformanceId = linked.data?.[0].nonConformanceId;
@@ -58,7 +58,7 @@ export const action: ActionFunction = async ({ request }) => {
     return new Response("Linear issue created");
   } catch (error) {
     console.error("Linear issue action error:", error);
-    return json(
+    return data(
       { success: false, message: "Failed to create issue" },
       { status: 400 }
     );

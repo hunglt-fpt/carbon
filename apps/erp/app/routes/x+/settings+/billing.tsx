@@ -24,10 +24,9 @@ import {
 import { useEdition } from "@carbon/remix";
 import { getBillingPortalRedirectUrl } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
-import { Form, useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { useState } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, Form, redirect, useLoaderData } from "react-router";
 import { z } from "zod/v3";
 import { usePermissions, useUser } from "~/hooks";
 import type { Handle } from "~/utils/handle";
@@ -95,11 +94,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
           .in("id", userIds)
       : { data: [], error: null };
 
-  return json({
+  return {
     plan: companyPlan.data,
     usage: companyUsage.data,
     employees: employees.data || []
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -127,7 +126,7 @@ export async function action({ request }: ActionFunctionArgs) {
       return redirect(billingPortalUrl, 301);
     } catch (err) {
       console.error("Failed to get billing portal URL:", err);
-      return json(
+      return data(
         {},
         await flash(request, error("Failed to access billing portal"))
       );
@@ -154,7 +153,7 @@ export async function action({ request }: ActionFunctionArgs) {
         throw new Error(updateResult.error.message);
       }
 
-      return json(
+      return data(
         {},
         await flash(
           request,
@@ -163,14 +162,14 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     } catch (err) {
       console.error("Failed to transfer ownership:", err);
-      return json(
+      return data(
         {},
         await flash(request, error("Failed to transfer ownership"))
       );
     }
   }
 
-  return json({}, await flash(request, error("Invalid intent")));
+  return data({}, await flash(request, error("Invalid intent")));
 }
 
 // This route now only handles actions - UI is in the company route

@@ -1,10 +1,12 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { deleteUnitOfMeasure, getUnitOfMeasure } from "~/modules/items";
 import { getParams, path } from "~/utils/path";
@@ -29,7 +31,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({ unitOfMeasure: unitOfMeasure.data });
+  return { unitOfMeasure: unitOfMeasure.data };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

@@ -8,10 +8,11 @@ import {
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs
+} from "react-router";
+import { data, redirect, useNavigate, useParams } from "react-router";
 import {
   customerContactValidator,
   insertCustomerContact
@@ -95,7 +96,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     return modal
-      ? json(createCustomerContact)
+      ? createCustomerContact
       : redirect(
           path.to.customerContacts(customerId),
           await flash(request, error(createCustomerContact.error, errorMessage))
@@ -103,7 +104,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(createCustomerContact, { status: 201 })
+    ? data(createCustomerContact, { status: 201 })
     : redirect(
         path.to.customerContacts(customerId),
         await flash(request, success("Customer contact created"))

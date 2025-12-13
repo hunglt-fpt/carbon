@@ -1,10 +1,9 @@
-import {
-  json,
-  redirect,
-  useLoaderData,
-  useNavigate,
-  useParams
-} from "@remix-run/react";
+import { assertIsPost, error, notFound } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import { validationError, validator } from "@carbon/form";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { AttributeDataType } from "~/modules/people";
 import {
@@ -12,15 +11,9 @@ import {
   customFieldValidator,
   getCustomField
 } from "~/modules/settings";
+import { upsertCustomField } from "~/modules/settings/settings.server";
 import { DataType } from "~/modules/shared";
 import { getParams, path } from "~/utils/path";
-
-import { assertIsPost, error, notFound } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
-import { flash } from "@carbon/auth/session.server";
-import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { upsertCustomField } from "~/modules/settings/settings.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -43,7 +36,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({ customField: customField.data });
+  return { customField: customField.data };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -72,7 +65,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     updatedBy: userId
   });
   if (update.error) {
-    return json(
+    return data(
       {},
       await flash(request, error(update.error, "Failed to update custom field"))
     );

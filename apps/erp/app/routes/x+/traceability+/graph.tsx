@@ -1,18 +1,17 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import {
   Button,
-  HStack,
   Heading,
+  HStack,
   Loading,
-  VStack,
-  useHydrated
+  useHydrated,
+  VStack
 } from "@carbon/react";
 import { useUrlParams } from "@carbon/remix";
-import { Link, useLoaderData, useNavigation } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { ParentSize } from "@visx/responsive";
 import { useEffect, useMemo, useState } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Link, redirect, useLoaderData, useNavigation } from "react-router";
 import { Empty } from "~/components";
 import type {
   Activity,
@@ -105,7 +104,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       .select("*")
       .in("id", uniqueActivityIds);
 
-    return json({
+    return {
       entities: [
         ...(entity?.data ? [entity.data] : []),
         ...(descendants?.data ?? []),
@@ -119,7 +118,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       inputs: inputs?.data ?? [],
       outputs: outputs?.data ?? [],
       activities: activities?.data ?? []
-    });
+    };
   }
 
   if (trackedActivityId) {
@@ -198,12 +197,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
       ...(additionalActivities?.data || [])
     ];
 
-    return json({
+    return {
       entities: directEntities?.data ?? [],
       inputs: allInputs,
       outputs: allOutputs,
       activities: allActivities
-    });
+    };
   }
 
   throw new Error("Invalid query parameters");

@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getSequencesList } from "~/modules/settings";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -10,11 +9,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const table = url.searchParams.get("table");
 
   if (!table) {
-    return json({
+    return {
       data: [],
       error: null
-    });
+    };
   }
 
-  return json(await getSequencesList(client, table, companyId));
+  return await getSequencesList(client, table, companyId);
 }

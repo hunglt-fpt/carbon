@@ -1,7 +1,7 @@
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { json, redirect, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data, redirect } from "react-router";
 import { deleteSavedView } from "~/modules/shared";
 import { path } from "~/utils/path";
 
@@ -16,7 +16,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const deleteView = await deleteSavedView(client, id);
   if (deleteView.error) {
-    return json(
+    return data(
       {
         id: null
       },

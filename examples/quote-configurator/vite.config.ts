@@ -1,8 +1,5 @@
-import { vitePlugin as remix } from "@remix-run/dev";
-import { vercelPreset } from "@vercel/remix/vite";
-import path from "node:path";
-import { flatRoutes } from "remix-flat-routes";
-import { defineConfig } from "vite";
+import { reactRouter } from "@react-router/dev/vite";
+import { defineConfig, PluginOption } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
@@ -15,39 +12,20 @@ export default defineConfig({
         }
 
         defaultHandler(warning);
-      },
-    },
+      }
+    }
   },
   define: {
-    global: "globalThis",
+    global: "globalThis"
   },
   optimizeDeps: {
-    extensions: [".css", ".scss", ".sass"], // explicitly include CSS extensions if needed
+    extensions: [".css", ".scss", ".sass"] // explicitly include CSS extensions if needed
   },
   ssr: {
-    noExternal: ["react-dropzone", "react-icons", "tailwind-merge"],
+    noExternal: ["react-dropzone", "react-icons", "tailwind-merge"]
   },
   server: {
-    port: 5001,
+    port: 5001
   },
-  plugins: [
-    remix({
-      presets: [vercelPreset()],
-      future: {
-        v3_singleFetch: true,
-        v3_fetcherPersist: true,
-        v3_lazyRouteDiscovery: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-      },
-      ignoredRouteFiles: ["**/.*"],
-      serverModuleFormat: "esm",
-      routes: async (defineRoutes) => {
-        return flatRoutes("routes", defineRoutes, {
-          appDir: path.resolve(__dirname, "app"),
-        });
-      },
-    }),
-    tsconfigPaths(),
-  ],
+  plugins: [reactRouter(), tsconfigPaths()] as PluginOption[]
 });

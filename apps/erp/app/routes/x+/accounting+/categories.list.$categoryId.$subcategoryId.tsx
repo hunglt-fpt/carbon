@@ -1,9 +1,8 @@
 import { error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { getAccountSubcategory } from "~/modules/accounting";
 import { AccountSubcategoryForm } from "~/modules/accounting/ui/AccountCategories";
 import { getCustomFields } from "~/utils/form";
@@ -30,9 +29,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     subcategory: subcategory.data
-  });
+  };
 }
 
 export default function EditAccountSubcategoryRoute() {

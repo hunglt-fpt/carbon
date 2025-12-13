@@ -1,11 +1,9 @@
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import { ResizablePanels } from "~/components/Layout";
-
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { useRouteData } from "@carbon/remix";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer } from "@vercel/remix";
 import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, Outlet, useLoaderData, useParams } from "react-router";
+import { ResizablePanels } from "~/components/Layout";
 import type { ItemFile, MaterialSummary } from "~/modules/items";
 import { getMaterialUsedIn } from "~/modules/items";
 import type { UsedInNode } from "~/modules/items/ui/Item/UsedIn";
@@ -22,7 +20,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  return defer({ usedIn: getMaterialUsedIn(client, itemId, companyId) });
+  return { usedIn: getMaterialUsedIn(client, itemId, companyId) };
 }
 
 export default function MaterialViewRoute() {

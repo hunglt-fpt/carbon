@@ -43,14 +43,6 @@ import {
 } from "@carbon/utils";
 import { now, toCalendarDateTime } from "@internationalized/date";
 import type { DateRange } from "@react-types/datepicker";
-import {
-  Await,
-  defer,
-  Link,
-  useFetcher,
-  useLoaderData
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
 import { flushSync } from "react-dom";
@@ -65,6 +57,8 @@ import {
   LuUserRoundCheck
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, Link, useFetcher, useLoaderData } from "react-router";
 import { Bar, BarChart, LabelList, XAxis, YAxis } from "recharts";
 import {
   CustomerAvatar,
@@ -119,12 +113,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getWorkCentersList(client, companyId)
   ]);
 
-  return defer({
+  return {
     activeJobs: activeJobs.data?.length ?? 0,
     assignedJobs: assignedJobs.data?.length ?? 0,
     workCenters: workCenters.data ?? [],
     events: getActiveProductionEvents(client, companyId)
-  });
+  };
 }
 
 export default function ProductionDashboard() {

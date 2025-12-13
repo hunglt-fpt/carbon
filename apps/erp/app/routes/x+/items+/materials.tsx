@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { getMaterials } from "~/modules/items";
 import { MaterialsTable } from "~/modules/items/ui/Materials";
 import { getTagsList } from "~/modules/shared";
@@ -50,11 +49,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: materials.count ?? 0,
     materials: materials.data ?? [],
     tags: tags.data ?? []
-  });
+  };
 }
 
 export default function MaterialsSearchRoute() {

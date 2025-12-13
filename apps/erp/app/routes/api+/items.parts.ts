@@ -1,8 +1,8 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { getPartsList } from "~/modules/items";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -10,11 +10,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const parts = await getPartsList(client, companyId);
   if (parts.error) {
-    return json(
+    return data(
       parts,
       await flash(request, error(parts.error, "Failed to get parts"))
     );
   }
 
-  return json(parts);
+  return parts;
 }

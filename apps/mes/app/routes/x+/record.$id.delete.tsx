@@ -7,8 +7,8 @@ import {
 } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { deleteAttributeRecord } from "~/services/operations.service";
 
 export async function action({ params, request }: ActionFunctionArgs) {
@@ -29,7 +29,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
   });
 
   if (attributeDelete.error) {
-    return json(
+    return data(
       { success: false },
       await flash(
         request,
@@ -38,7 +38,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
     );
   }
 
-  return json(
+  return data(
     { success: true },
     await flash(request, success("Step deleted successfully"))
   );

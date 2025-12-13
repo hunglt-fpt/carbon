@@ -2,7 +2,7 @@ import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import {
   jobOperationValidator,
   recalculateJobMakeMethodRequirements,
@@ -38,7 +38,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     customFields: setCustomFields(formData)
   });
   if (insertJobOperation.error) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -51,7 +51,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const jobOperationId = insertJobOperation.data?.id;
   if (!jobOperationId) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -76,7 +76,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   ]);
 
   if (recalculateResult.error) {
-    return json(
+    return data(
       { id: jobOperationId },
       await flash(
         request,
@@ -89,7 +89,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (recalculateDependencies?.error) {
-    return json(
+    return data(
       { id: jobOperationId },
       await flash(
         request,
@@ -101,9 +101,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     id: jobOperationId,
     success: true,
     message: "Operation created"
-  });
+  };
 }

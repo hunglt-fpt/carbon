@@ -1,12 +1,12 @@
 import { Button, cn, Progress, VStack } from "@carbon/react";
-import { json, Link, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
 import {
   LuCircleCheck,
   LuCirclePlay,
   LuFlag,
   LuRotateCcw
 } from "react-icons/lu";
+import type { LoaderFunctionArgs } from "react-router";
+import { Link, useParams } from "react-router";
 import { modules } from "~/config";
 import { useProgress } from "~/hooks";
 import { path } from "~/utils/path";
@@ -19,7 +19,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     throw new Error("Course ID is required");
   }
 
-  return json({});
+  return {};
 };
 
 export default function CourseRoute() {

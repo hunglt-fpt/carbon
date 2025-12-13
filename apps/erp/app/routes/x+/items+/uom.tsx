@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { getUnitOfMeasures } from "~/modules/items";
 import { UnitOfMeasuresTable } from "~/modules/items/ui/UnitOfMeasure";
 import type { Handle } from "~/utils/handle";
@@ -26,15 +25,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  return json(
-    await getUnitOfMeasures(client, companyId, {
-      search,
-      limit,
-      offset,
-      sorts,
-      filters
-    })
-  );
+  return await getUnitOfMeasures(client, companyId, {
+    search,
+    limit,
+    offset,
+    sorts,
+    filters
+  });
 }
 
 export default function UnitOfMeasuresRoute() {

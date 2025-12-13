@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useNavigate } from "react-router";
 import {
   materialDimensionValidator,
   upsertMaterialDimension
@@ -40,18 +39,18 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { id, ...data } = validation.data;
+  const { id, ...rest } = validation.data;
 
   const settings = await getCompanySettings(client, companyId);
 
   const insertMaterialDimension = await upsertMaterialDimension(client, {
-    ...data,
+    ...rest,
     companyId,
     isMetric: settings?.data?.useMetric ?? false
   });
 
   if (insertMaterialDimension.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -65,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const materialDimensionId = insertMaterialDimension.data?.id;
   if (!materialDimensionId) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -75,7 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertMaterialDimension, { status: 201 })
+    ? data(insertMaterialDimension, { status: 201 })
     : redirect(
         `${path.to.materialDimensions}?${getParams(request)}`,
         await flash(request, success("Dimension created"))

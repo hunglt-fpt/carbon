@@ -1,9 +1,8 @@
-import { json } from "@remix-run/react";
-
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { updateJobBatchNumber } from "~/modules/production/production.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -23,11 +22,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await updateJobBatchNumber(client, trackedEntityId, value);
 
   if (update.error) {
-    return json(
+    return data(
       update,
       await flash(request, error(update.error, update.error.message))
     );
   }
 
-  return json(update);
+  return update;
 }

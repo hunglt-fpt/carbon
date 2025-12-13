@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getGaugesList, getGaugeTypesList } from "~/modules/quality";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -13,5 +12,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getGaugeTypesList(client, companyId)
   ]);
 
-  return json({ gauges: gauges.data ?? [], gaugeTypes: gaugeTypes.data ?? [] });
+  return { gauges: gauges.data ?? [], gaugeTypes: gaugeTypes.data ?? [] };
 }

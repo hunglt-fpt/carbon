@@ -4,12 +4,11 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
-import { Await, useLoaderData, useParams } from "@remix-run/react";
 import type { FileObject } from "@supabase/storage-js";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { Suspense, useRef } from "react";
 import { Fragment } from "react/jsx-runtime";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { useRouteData, useUser } from "~/hooks";
 import type {
   PurchaseInvoice,
@@ -51,9 +50,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     internalNotes: (invoice.data?.internalNotes ?? {}) as JSONContent
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

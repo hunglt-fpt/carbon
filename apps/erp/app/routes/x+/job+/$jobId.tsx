@@ -1,16 +1,15 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { Suspense, useMemo } from "react";
+import type { LoaderFunctionArgs } from "react-router";
 import {
   Await,
-  defer,
   Outlet,
   redirect,
   useLoaderData,
   useParams
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { Suspense, useMemo } from "react";
+} from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { ExplorerSkeleton } from "~/components/Skeletons";
 import { flattenTree } from "~/components/TreeView";
@@ -62,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     job: job.data,
     tags: tags.data ?? [],
     files: getJobDocuments(client, companyId, job.data),
@@ -73,7 +72,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       job.data.itemId!,
       companyId
     )
-  });
+  };
 }
 
 export default function JobRoute() {

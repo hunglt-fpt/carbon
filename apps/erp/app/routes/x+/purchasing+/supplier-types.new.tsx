@@ -2,10 +2,12 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { data, json, redirect, useNavigate } from "react-router";
 import {
   supplierTypeValidator,
   upsertSupplierType
@@ -49,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (insertSupplierType.error) {
     return modal
-      ? json(insertSupplierType)
+      ? insertSupplierType
       : redirect(
           `${path.to.supplierTypes}?${getParams(request)}`,
           await flash(
@@ -60,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertSupplierType, { status: 201 })
+    ? data(insertSupplierType, { status: 201 })
     : redirect(
         `${path.to.supplierTypes}?${getParams(request)}`,
         await flash(request, success("Supplier type created"))

@@ -1,8 +1,3 @@
-import { Toaster } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-
 import {
   CarbonProvider,
   getAppUrl,
@@ -14,7 +9,10 @@ import {
   destroyAuthSession,
   requireAuthSession
 } from "@carbon/auth/session.server";
+import { Toaster } from "@carbon/react";
 import { useNProgress } from "@carbon/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { accessToken, companyId, expiresAt, expiresIn, userId } =
@@ -38,7 +36,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect(getAppUrl());
   }
 
-  return json({
+  return {
     session: {
       accessToken,
       expiresIn,
@@ -47,7 +45,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     company,
     companies: companies.data ?? [],
     user: user.data
-  });
+  };
 }
 
 export default function AuthenticatedRoute() {

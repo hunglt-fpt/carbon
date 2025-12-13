@@ -4,11 +4,16 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
 import { Suspense } from "react";
 import { Fragment } from "react/jsx-runtime";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import { CadModel } from "~/components";
 import { usePermissions } from "~/hooks";
 import {
@@ -44,10 +49,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     line: line?.data ?? null,
     files: getSupplierInteractionLineDocuments(client, companyId, lineId)
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

@@ -1,9 +1,8 @@
 import { error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { useLoaderData, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
 import { JobOperation } from "~/components/JobOperation";
 import {
   getJobByOperationId,
@@ -96,7 +95,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect(redirectUrl.toString());
   }
 
-  return defer({
+  return {
     events: events.data ?? [],
     quantities: (quantities.data ?? []).reduce(
       (acc, curr) => {
@@ -136,7 +135,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     procedure: getJobOperationProcedure(serviceRole, operation.data?.[0].id),
     workCenter: getWorkCenter(serviceRole, operation.data?.[0].workCenterId),
     thumbnailPath
-  });
+  };
 }
 
 export default function OperationRoute() {

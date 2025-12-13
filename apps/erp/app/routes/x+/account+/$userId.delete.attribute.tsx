@@ -1,8 +1,8 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { deleteUserAttributeValue } from "~/modules/account";
 import { getAttribute } from "~/modules/people";
 import { getUserClaims } from "~/modules/users/users.server";
@@ -31,7 +31,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     clientClaims.permissions["resources"]?.update?.includes(companyId);
 
   if (!canUpdateAnyUser && userId !== targetUserId) {
-    return json(
+    return data(
       null,
       await flash(request, error(null, "Unauthorized: Cannot remove attribute"))
     );
@@ -41,7 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     // check if this is a self managed attribute
     const attribute = await getAttribute(client, userAttributeId);
     if (attribute.error) {
-      return json(
+      return data(
         null,
         await flash(request, error(attribute.error, "Failed to get attribute"))
       );
@@ -49,7 +49,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     const canSelfManage = attribute.data?.canSelfManage ?? false;
     if (!canSelfManage) {
-      return json(
+      return data(
         null,
         await flash(
           request,
@@ -65,7 +65,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     userAttributeValueId: userAttributeValueId
   });
   if (removeAttributeValue.error) {
-    return json(
+    return data(
       null,
       await flash(
         request,
@@ -74,7 +74,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json(null, await flash(request, success("Deleted attribute value")));
+  return data(null, await flash(request, success("Deleted attribute value")));
 }
 
 export default function UserAttributeValueRoute() {

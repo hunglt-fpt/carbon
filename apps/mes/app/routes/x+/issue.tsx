@@ -3,8 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
 import { FunctionRegion } from "@supabase/supabase-js";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { issueValidator } from "~/services/models";
 import { path, requestReferrer } from "~/utils/path";
 
@@ -16,7 +16,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const validation = await validator(issueValidator).validate(formData);
 
   if (validation.error) {
-    return json({ error: validation.error }, { status: 400 });
+    return data({ error: validation.error }, { status: 400 });
   }
 
   const { jobOperationId, materialId, itemId, quantity, adjustmentType } =

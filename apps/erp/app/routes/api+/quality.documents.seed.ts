@@ -1,7 +1,7 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
 import template from "lodash.template";
+import { type ActionFunctionArgs, data } from "react-router";
 import { documents } from "./data/quality";
 
 function interpolateContent(
@@ -43,21 +43,21 @@ export async function action({ request }: ActionFunctionArgs) {
   ]);
 
   if (currentDocuments.error) {
-    return json(
+    return data(
       { success: false, message: currentDocuments.error.message },
       { status: 500 }
     );
   }
 
   if (currentDocuments.data.length > 0) {
-    return json(
+    return data(
       { success: false, message: "Documents already exist" },
       { status: 400 }
     );
   }
 
   if (company.error || !company.data) {
-    return json(
+    return data(
       { success: false, message: "Company not found" },
       { status: 404 }
     );
@@ -75,11 +75,11 @@ export async function action({ request }: ActionFunctionArgs) {
     .insert(interpolatedDocuments);
 
   if (insertDocuments.error) {
-    return json(
+    return data(
       { success: false, message: insertDocuments.error.message },
       { status: 500 }
     );
   }
 
-  return json({ success: true, message: "Successfully seeded documents" });
+  return { success: true, message: "Successfully seeded documents" };
 }

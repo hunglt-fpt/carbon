@@ -2,10 +2,11 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs
+} from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import {
   ProcessForm,
   processValidator,
@@ -42,7 +43,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (createProcess.error) {
     return modal
-      ? json(createProcess)
+      ? createProcess
       : redirect(
           path.to.processes,
           await flash(
@@ -53,7 +54,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(createProcess)
+    ? createProcess
     : redirect(
         path.to.processes,
         await flash(request, success("Process created"))

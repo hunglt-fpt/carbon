@@ -1,9 +1,8 @@
-import { json, redirect } from "@remix-run/react";
-
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { deleteSalesRFQ } from "~/modules/sales";
 import { path } from "~/utils/path";
 
@@ -19,7 +18,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const salesRfqDelete = await deleteSalesRFQ(client, rfqId);
 
   if (salesRfqDelete.error) {
-    return json(
+    return data(
       path.to.salesRfqs,
       await flash(
         request,

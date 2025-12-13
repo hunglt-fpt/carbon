@@ -1,18 +1,11 @@
-import type { JSONContent } from "@carbon/react";
-import { Menubar, VStack } from "@carbon/react";
-import {
-  Await,
-  defer,
-  redirect,
-  useLoaderData,
-  useParams
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import type { JSONContent } from "@carbon/react";
+import { Menubar, VStack } from "@carbon/react";
 import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { usePermissions } from "~/hooks/usePermissions";
 import {
@@ -80,7 +73,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     makeMethod: makeMethod.data,
 
     methodMaterials:
@@ -108,7 +101,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     model: getModelByItemId(client, makeMethod.data.itemId),
     makeMethods: getMakeMethods(client, makeMethod.data.itemId, companyId),
     tags: tags.data ?? []
-  });
+  };
 }
 
 export default function MethodMaterialMakePage() {

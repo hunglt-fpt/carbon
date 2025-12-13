@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { useMount, VStack } from "@carbon/react";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { usePanels } from "~/components/Layout";
 import { getJobOperationStepRecords } from "~/modules/production";
 import { JobOperationStepRecordsTable } from "~/modules/production/ui/Jobs";
@@ -46,10 +45,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: stepRecords.count ?? 0,
     stepRecords: stepRecords.data ?? []
-  });
+  };
 }
 
 export default function JobOperationStepRecordsRoute() {

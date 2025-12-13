@@ -2,9 +2,8 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import {
   EmployeeTypeForm,
   employeeTypePermissionsValidator,
@@ -31,13 +30,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getPermissionsByEmployeeType(client, employeeTypeId)
   ]);
 
-  return json({
+  return {
     employeeType: employeeType?.data,
     employeeTypePermissions: makeCompanyPermissionsFromEmployeeType(
       employeeTypePermissions.data ?? [],
       companyId
     )
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -61,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const jsonValidation =
     employeeTypePermissionsValidator.safeParse(permissions);
   if (jsonValidation.success === false) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -76,7 +75,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (updateEmployeeType.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -93,7 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (updateEmployeeTypePermissions.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

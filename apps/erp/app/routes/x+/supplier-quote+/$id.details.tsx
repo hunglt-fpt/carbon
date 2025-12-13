@@ -4,11 +4,10 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
-import { Await, useLoaderData, useParams } from "@remix-run/react";
 import type { FileObject } from "@supabase/storage-js";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { Suspense } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import {
   getSupplierQuote,
@@ -28,11 +27,6 @@ import SupplierQuoteSummary from "~/modules/purchasing/ui/SupplierQuote/Supplier
 import { setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
 
-type LoaderData = {
-  internalNotes: JSONContent;
-  externalNotes: JSONContent;
-};
-
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
     view: "purchasing"
@@ -49,10 +43,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json<LoaderData>({
+  return {
     internalNotes: (quote.data?.internalNotes ?? {}) as JSONContent,
     externalNotes: (quote.data?.externalNotes ?? {}) as JSONContent
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import { customerPortalValidator } from "~/modules/sales";
 import CustomerPortalForm from "~/modules/sales/ui/CustomerPortals/CustomerPortalForm";
 import { upsertExternalLink } from "~/modules/shared";
@@ -47,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (insertCustomerPortal.error) {
     return modal
-      ? json(insertCustomerPortal)
+      ? insertCustomerPortal
       : redirect(
           requestReferrer(request) ??
             `${path.to.customerPortals}?${getParams(request)}`,
@@ -62,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertCustomerPortal)
+    ? insertCustomerPortal
     : redirect(
         `${path.to.customerPortals}?${getParams(request)}`,
         await flash(request, success("Customer portal created"))

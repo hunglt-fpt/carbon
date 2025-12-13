@@ -2,9 +2,8 @@ import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { validationError, validator } from "@carbon/form";
 import { useRouteData } from "@carbon/remix";
-import { useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import type { ConsumableSummary } from "~/modules/items";
 import { supplierPartValidator, upsertSupplierPart } from "~/modules/items";
 import { SupplierPartForm } from "~/modules/items/ui/Item";
@@ -38,16 +37,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (createConsumableSupplier.error) {
-    return json({
+    return {
       success: false,
       message: "Failed to create consumable supplier"
-    });
+    };
   }
 
-  return json({
+  return {
     success: true,
     message: "Consumable supplier created successfully"
-  });
+  };
 }
 
 export default function NewConsumableSupplierRoute() {

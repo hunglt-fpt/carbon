@@ -1,18 +1,11 @@
-import type { JSONContent } from "@carbon/react";
-import { VStack } from "@carbon/react";
-import {
-  Await,
-  defer,
-  redirect,
-  useLoaderData,
-  useParams
-} from "@remix-run/react";
-
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
+import type { JSONContent } from "@carbon/react";
+import { VStack } from "@carbon/react";
 import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel } from "~/components";
 import { usePermissions } from "~/hooks";
 import {
@@ -74,7 +67,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     makeMethod: makeMethod.data,
     materials:
       materials?.data.map((m) => ({
@@ -99,7 +92,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       })) ?? [],
     tags: tags.data ?? [],
     model: getModelByItemId(client, makeMethod.data.itemId!)
-  });
+  };
 }
 
 export default function QuoteMakeMethodRoute() {

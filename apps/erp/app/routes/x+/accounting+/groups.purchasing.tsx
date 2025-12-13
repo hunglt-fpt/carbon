@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { AccountListItem } from "~/modules/accounting";
 import { getPurchasingPostingGroups } from "~/modules/accounting";
@@ -54,12 +53,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     data: purchasingGroups.data ?? [],
     itemPostingGroups: itemPostingGroups.data ?? [],
     supplierTypes: supplierTypes.data ?? [],
     count: purchasingGroups.count ?? 0
-  });
+  };
 }
 
 export default function PurchasingPostingGroupsRoute() {

@@ -1,7 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { json, Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { getNoQuoteReasons } from "~/modules/sales";
 import { NoQuoteReasonsTable } from "~/modules/sales/ui/NoQuoteReasons";
 import type { Handle } from "~/utils/handle";
@@ -25,15 +25,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  return json(
-    await getNoQuoteReasons(client, companyId, {
-      search,
-      limit,
-      offset,
-      sorts,
-      filters
-    })
-  );
+  return await getNoQuoteReasons(client, companyId, {
+    search,
+    limit,
+    offset,
+    sorts,
+    filters
+  });
 }
 
 export default function ScrapReasonsRoute() {

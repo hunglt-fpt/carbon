@@ -3,9 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { PanelProvider } from "~/components/Layout";
 import { getStockTransfer, getStockTransferLines } from "~/modules/inventory";
 import StockTransferHeader from "~/modules/inventory/ui/StockTransfers/StockTransferHeader";
@@ -46,10 +45,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect(path.to.stockTransfers);
   }
 
-  return json({
+  return {
     stockTransfer: stockTransfer.data,
     stockTransferLines: stockTransferLines.data ?? []
-  });
+  };
 }
 
 export default function StockTransferRoute() {

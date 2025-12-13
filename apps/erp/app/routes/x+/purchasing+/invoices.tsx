@@ -2,12 +2,11 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import {
-  PurchaseInvoicesTable,
-  getPurchaseInvoices
+  getPurchaseInvoices,
+  PurchaseInvoicesTable
 } from "~/modules/invoicing";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -52,10 +51,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: purchaseInvoices.count ?? 0,
     purchaseInvoices: purchaseInvoices.data ?? []
-  });
+  };
 }
 
 export default function PurchaseInvoicesSearchRoute() {

@@ -1,3 +1,7 @@
+import { error } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import { Select, Submit, ValidatedForm, validator } from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -10,16 +14,10 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-
-import { error } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
-import { flash } from "@carbon/auth/session.server";
-import { Select, Submit, ValidatedForm, validator } from "@carbon/form";
 import { labelSizes } from "@carbon/utils";
-import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useFetcher, useLoaderData } from "react-router";
 import {
   getCompanySettings,
   productLabelSizeValidator,
@@ -48,7 +46,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         error(companySettings.error, "Failed to get company settings")
       )
     );
-  return json({ companySettings: companySettings.data });
+  return { companySettings: companySettings.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -66,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (validation.error) {
-        return json({ success: false, message: "Invalid form data" });
+        return { success: false, message: "Invalid form data" };
       }
 
       const productLabelSize = await updateProductLabelSize(
@@ -75,13 +73,13 @@ export async function action({ request }: ActionFunctionArgs) {
         validation.data.productLabelSize
       );
       if (productLabelSize.error)
-        return json({
+        return {
           success: false,
           message: productLabelSize.error.message
-        });
+        };
   }
 
-  return json({ success: true, message: "Label settings updated" });
+  return { success: true, message: "Label settings updated" };
 }
 
 export default function SalesSettingsRoute() {

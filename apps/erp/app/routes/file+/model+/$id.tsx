@@ -1,8 +1,7 @@
-import { ModelViewer } from "@carbon/react";
-import { json, useLoaderData } from "@remix-run/react";
-
 import { getCarbonServiceRole, notFound } from "@carbon/auth";
-import type { LoaderFunctionArgs } from "@vercel/remix";
+import { ModelViewer } from "@carbon/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 import { getPublicModelUrl } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -17,7 +16,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     .single();
   if (!model.data) throw notFound("model not found");
 
-  return json({ model: model.data });
+  return { model: model.data };
 }
 
 export default function ModelRoute() {

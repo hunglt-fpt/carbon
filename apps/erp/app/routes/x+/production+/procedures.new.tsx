@@ -2,10 +2,12 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { redirect, useNavigate } from "react-router";
 import { procedureValidator } from "~/modules/production/production.models";
 import { upsertProcedure } from "~/modules/production/production.service";
 import ProcedureForm from "~/modules/production/ui/Procedures/ProcedureForm";
@@ -40,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
     contentJSON = content ? JSON.parse(content) : {};
     // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   } catch (e) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -60,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (insertProcedure.error || !insertProcedure.data?.id) {
-    return json(
+    return data(
       {},
       await flash(
         request,

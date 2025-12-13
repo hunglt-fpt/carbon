@@ -17,14 +17,6 @@ import {
   ToggleGroupItem,
   VStack
 } from "@carbon/react";
-import {
-  redirect,
-  useFetcher,
-  useLoaderData,
-  useNavigate
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
 import { useMemo, useState } from "react";
 import {
   LuCalendar,
@@ -33,6 +25,8 @@ import {
   LuSearch,
   LuTriangleAlert
 } from "react-icons/lu";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useFetcher, useLoaderData, useNavigate } from "react-router";
 import { EmployeeAvatar, Empty } from "~/components";
 import { usePermissions } from "~/hooks";
 import { getTraining, getTrainingAssignmentStatus } from "~/modules/resources";
@@ -89,10 +83,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     training: training.data,
     assignments: (assignmentStatus.data ?? []) as TrainingAssignmentStatusItem[]
-  });
+  };
 }
 
 function StatusBadge({ status }: { status: string }) {

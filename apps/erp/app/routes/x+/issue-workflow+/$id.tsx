@@ -4,9 +4,8 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 
 import { ScrollArea } from "@carbon/react";
-import { useLoaderData, useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import {
   getIssueWorkflow,
   getRequiredActionsList,
@@ -48,10 +47,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     workflow: workflow.data,
     requiredActions: requiredActions.data ?? []
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -78,7 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (updateIssueWorkflow.error) {
     console.error(updateIssueWorkflow.error);
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -87,7 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json(
+  return data(
     {},
     await flash(request, success("Non-conformance workflow updated"))
   );

@@ -12,8 +12,12 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
-import { Link, useLoaderData } from "@remix-run/react";
-import { redirect, type ActionFunctionArgs } from "@vercel/remix";
+import {
+  type ActionFunctionArgs,
+  Link,
+  redirect,
+  useLoaderData
+} from "react-router";
 import type { z } from "zod/v3";
 import { Hidden, Input, Submit } from "~/components/Form";
 import { useOnboarding } from "~/hooks";

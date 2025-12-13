@@ -2,17 +2,16 @@ import { error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider } from "~/components/Layout";
 import {
-  ReceiptHeader,
   getBatchProperties,
   getReceipt,
   getReceiptFiles,
+  getReceiptLines,
   getReceiptTracking,
-  getReceiptLines
+  ReceiptHeader
 } from "~/modules/inventory";
 import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -61,7 +60,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .filter((itemId) => itemId !== null);
   }
 
-  return defer({
+  return {
     receipt: receipt.data,
     receiptLines: receiptLines.data ?? [],
     receiptFiles: getReceiptFiles(serviceRole, companyId, receiptLineIds) ?? [],
@@ -70,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       getBatchProperties(serviceRole, itemsWithBatchProperties, companyId) ??
       [],
     companySettings: getCompanySettings(serviceRole, companyId)
-  });
+  };
 }
 
 export default function ReceiptRoute() {

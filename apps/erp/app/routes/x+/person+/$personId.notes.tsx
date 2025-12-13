@@ -1,12 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@carbon/react";
-import { useLoaderData, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-import RichText from "~/components/RichText";
-
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { Card, CardContent, CardHeader, CardTitle } from "@carbon/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
+import RichText from "~/components/RichText";
 import { getNotes } from "~/modules/shared";
 import { path } from "~/utils/path";
 
@@ -29,9 +27,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     notes: notes.data
-  });
+  };
 }
 
 export default function PersonNotesRoute() {

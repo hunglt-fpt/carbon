@@ -2,8 +2,8 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { consumableValidator, upsertConsumable } from "~/modules/items";
 import { ConsumableForm } from "~/modules/items/ui/Consumables";
 import { setCustomFields } from "~/utils/form";
@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (createConsumable.error) {
     return modal
-      ? json(
+      ? data(
           createConsumable,
           await flash(
             request,
@@ -59,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Consumable ID not found");
 
   return modal
-    ? json(createConsumable, { status: 201 })
+    ? data(createConsumable, { status: 201 })
     : redirect(path.to.consumable(itemId));
 }
 

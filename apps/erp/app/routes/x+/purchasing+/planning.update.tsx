@@ -1,5 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import { z } from "zod/v3";
 import { getCurrencyByCode } from "~/modules/accounting/accounting.service";
 import {
@@ -27,7 +27,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const { items, action, locationId } = await request.json();
 
   if (typeof locationId !== "string") {
-    return json(
+    return data(
       {
         success: false,
         message: "Location ID is required and must be a valid string"
@@ -37,7 +37,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (typeof action !== "string") {
-    return json(
+    return data(
       {
         success: false,
         message: "Action parameter is required and must be a valid string"
@@ -79,7 +79,7 @@ export async function action({ request }: ActionFunctionArgs) {
           return error.message;
         });
 
-        return json(
+        return data(
           {
             success: false,
             message: `Validation failed: ${errorMessages.join(", ")}`,
@@ -91,7 +91,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
       const itemsToOrder = parsedItems.data;
       if (itemsToOrder.length === 0) {
-        return json(
+        return data(
           {
             success: false,
             message: "No items were provided to create purchase orders"
@@ -162,7 +162,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (suppliers.error) {
           console.error("Failed to fetch suppliers:", suppliers.error);
-          return json(
+          return data(
             {
               success: false,
               message: "Failed to retrieve supplier information from database"
@@ -173,7 +173,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (supplierParts.error) {
           console.error("Failed to fetch supplier parts:", supplierParts.error);
-          return json(
+          return data(
             {
               success: false,
               message:
@@ -185,7 +185,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (periods.error) {
           console.error("Failed to fetch periods:", periods.error);
-          return json(
+          return data(
             {
               success: false,
               message: "Failed to retrieve period information from database"
@@ -196,7 +196,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         if (company.error) {
           console.error("Failed to fetch company:", company.error);
-          return json(
+          return data(
             {
               success: false,
               message: "Failed to retrieve company information from database"
@@ -501,7 +501,7 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         if (errors.length > 0 && processedItems === 0) {
-          return json(
+          return data(
             {
               success: false,
               message: `Failed to process any items. Errors: ${errors
@@ -524,16 +524,16 @@ export async function action({ request }: ActionFunctionArgs) {
                 errors.length > 2 ? "..." : ""
               }`;
 
-        return json({
+        return {
           success: processedItems > 0,
           message,
           processedItems,
           totalItems: itemsToOrder.length,
           errors: errors.length > 0 ? errors : undefined
-        });
+        };
       } catch (error) {
         console.error("Unexpected error processing purchase orders:", error);
-        return json(
+        return data(
           {
             success: false,
             message: `Unexpected error occurred while processing purchase orders: ${
@@ -545,7 +545,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
     default:
-      return json(
+      return data(
         {
           success: false,
           message: `Unknown action '${action}'. Expected action: 'order'`

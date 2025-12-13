@@ -1,9 +1,8 @@
 import { openai } from "@ai-sdk/openai";
 import { notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
 import { generateObject } from "ai";
+import type { ActionFunctionArgs } from "react-router";
 import type { ZodSchema } from "zod/v3";
 import { z } from "zod/v3";
 import { importSchemas } from "~/modules/shared";
@@ -52,10 +51,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       temperature: 0.2
     });
 
-    return json(object);
+    return object;
   } catch (error) {
     console.error(error);
-    return json({} as Record<string, string>);
+    return {} as Record<string, string>;
   }
 }
 

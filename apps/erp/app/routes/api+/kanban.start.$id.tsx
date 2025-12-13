@@ -2,10 +2,9 @@ import { notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
 import { Loading } from "@carbon/react";
-import { Await, useLoaderData } from "@remix-run/react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { defer, type LoaderFunctionArgs } from "@vercel/remix";
 import { Suspense } from "react";
+import { Await, type LoaderFunctionArgs, useLoaderData } from "react-router";
 import { Redirect } from "~/components/Redirect";
 import { getKanban } from "~/modules/inventory";
 import { getActiveJobOperationByJobId } from "~/modules/production";
@@ -71,7 +70,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw notFound("id not found");
 
-  return defer(await handleKanbanStart({ client, companyId, id }));
+  return await handleKanbanStart({ client, companyId, id });
 }
 
 export default function KanbanRedirectRoute() {

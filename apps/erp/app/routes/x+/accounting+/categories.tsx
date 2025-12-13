@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { getAccountCategories } from "~/modules/accounting";
 import { AccountCategoriesTable } from "~/modules/accounting/ui/AccountCategories";
 import type { Handle } from "~/utils/handle";
@@ -49,10 +48,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: categories.count ?? 0,
     categories: categories.data ?? []
-  });
+  };
 }
 
 export default function GlAccountCategoriesRoute() {

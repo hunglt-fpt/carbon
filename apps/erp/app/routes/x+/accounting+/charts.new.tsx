@@ -2,8 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import type {
   AccountClass,
   AccountConsolidatedRate,
@@ -46,7 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
     createdBy: userId
   });
   if (insertAccount.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -57,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const accountNumber = insertAccount.data?.id;
   if (!accountNumber) {
-    return json(
+    return data(
       {},
       await flash(request, error(insertAccount, "Failed to insert account"))
     );

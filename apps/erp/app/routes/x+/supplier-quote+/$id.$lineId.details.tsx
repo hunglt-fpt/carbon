@@ -5,10 +5,15 @@ import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
 import { Fragment, Suspense } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import type {
   SupplierQuote,
   SupplierQuoteLinePrice
@@ -55,7 +60,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     );
   }
 
-  return defer({
+  return {
     line: line.data,
     files: getSupplierInteractionLineDocuments(serviceRole, companyId, lineId),
     pricesByQuantity: (prices?.data ?? []).reduce<
@@ -64,7 +69,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       acc[price.quantity] = price;
       return acc;
     }, {})
-  });
+  };
 };
 
 export async function action({ request, params }: ActionFunctionArgs) {

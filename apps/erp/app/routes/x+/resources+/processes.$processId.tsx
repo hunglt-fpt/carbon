@@ -2,13 +2,15 @@ import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { json, redirect, useLoaderData, useNavigate } from "react-router";
 import {
-  ProcessForm,
   getProcess,
+  ProcessForm,
   processValidator,
   upsertProcess
 } from "~/modules/resources";
@@ -33,9 +35,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     process: process.data
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -73,7 +75,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return modal ? json(createProcess) : redirect(path.to.processes);
+  return modal ? createProcess : redirect(path.to.processes);
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {

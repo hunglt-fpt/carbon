@@ -9,19 +9,9 @@ import {
   Progress,
   VStack
 } from "@carbon/react";
-import {
-  Link,
-  Outlet,
-  redirect,
-  useFetcher,
-  useLoaderData
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
 import {
-  LuTriangleAlert,
   LuBookOpen,
   LuChartColumnIncreasing,
   LuCircleCheck,
@@ -30,15 +20,24 @@ import {
   LuPencil,
   LuRepeat,
   LuTrash,
+  LuTriangleAlert,
   LuUsers
 } from "react-icons/lu";
+import type { LoaderFunctionArgs } from "react-router";
+import {
+  Link,
+  Outlet,
+  redirect,
+  useFetcher,
+  useLoaderData
+} from "react-router";
 import { Hyperlink, New, Table } from "~/components";
+import { usePermissions } from "~/hooks";
 import {
   getTrainingAssignmentSummary,
   getTrainingAssignments
 } from "~/modules/resources";
 import type { TrainingAssignmentSummaryItem } from "~/modules/resources/types";
-import { usePermissions } from "~/hooks";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -80,10 +79,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     {} as Record<string, string[]>
   );
 
-  return json({
+  return {
     summary: (summary.data ?? []) as TrainingAssignmentSummaryItem[],
     assignmentsByTraining
-  });
+  };
 }
 
 const TrainingAssignmentsTable = memo(

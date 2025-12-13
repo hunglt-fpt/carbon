@@ -19,15 +19,14 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { useFetcher, useSearchParams } from "@remix-run/react";
 import { Ratelimit } from "@upstash/ratelimit";
+import { LuCircleAlert } from "react-icons/lu";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction
-} from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-import { LuCircleAlert } from "react-icons/lu";
+} from "react-router";
+import { data, redirect, useFetcher, useSearchParams } from "react-router";
 
 import { path } from "~/utils/path";
 
@@ -56,7 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const { success } = await ratelimit.limit(ip);
 
   if (!success) {
-    return json(
+    return data(
       error(null, "Rate limit exceeded"),
       await flash(request, error(null, "Rate limit exceeded"))
     );
@@ -67,7 +66,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json(error(validation.error, "Invalid email address"));
+    return error(validation.error, "Invalid email address");
   }
 
   const { email } = validation.data;
@@ -77,19 +76,19 @@ export async function action({ request }: ActionFunctionArgs) {
     const magicLink = await sendMagicLink(email);
 
     if (!magicLink) {
-      return json(
+      return data(
         error(magicLink, "Failed to send magic link"),
         await flash(request, error(magicLink, "Failed to send magic link"))
       );
     }
   } else {
-    return json(
+    return data(
       error(user, "User record not found"),
       await flash(request, error(user.error, "User record not found"))
     );
   }
 
-  return json({ success: true });
+  return { success: true };
 }
 
 export default function LoginRoute() {

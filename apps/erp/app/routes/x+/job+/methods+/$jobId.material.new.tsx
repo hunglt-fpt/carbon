@@ -2,7 +2,7 @@ import { assertIsPost, error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import {
   jobMaterialValidator,
   recalculateJobMakeMethodRequirements,
@@ -39,7 +39,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     customFields: setCustomFields(formData)
   });
   if (insertJobMaterial.error) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -52,7 +52,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const jobMaterialId = insertJobMaterial.data?.id;
   if (!jobMaterialId) {
-    return json(
+    return data(
       {
         id: null
       },
@@ -70,7 +70,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .eq("id", jobMaterialId)
       .single();
     if (materialMakeMethod.error) {
-      return json(
+      return data(
         {
           id: null
         },
@@ -88,7 +88,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
 
     if (makeMethod.error) {
-      return json(
+      return data(
         {
           id: jobMaterialId
         },
@@ -121,7 +121,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       await Promise.all(promises);
 
     if (recalculateResult.error) {
-      return json(
+      return data(
         { id: jobMaterialId },
         await flash(
           request,
@@ -134,7 +134,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     if (recalculateDependencies?.error) {
-      return json(
+      return data(
         { id: jobMaterialId },
         await flash(
           request,
@@ -147,9 +147,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-  return json({
+  return {
     id: jobMaterialId,
     success: true,
     message: "Material created"
-  });
+  };
 }

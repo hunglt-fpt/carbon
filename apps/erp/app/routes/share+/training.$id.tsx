@@ -25,14 +25,6 @@ import {
   SelectValue,
   VStack
 } from "@carbon/react";
-import {
-  Link,
-  useActionData,
-  useLoaderData,
-  useSubmit
-} from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import {
@@ -46,6 +38,14 @@ import {
   LuHouse,
   LuRefreshCcw
 } from "react-icons/lu";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  data,
+  Link,
+  useActionData,
+  useLoaderData,
+  useSubmit
+} from "react-router";
 import {
   getTrainingAssignmentForCompletion,
   insertTrainingCompletion
@@ -98,7 +98,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const questions = (training.trainingQuestion ?? []) as TrainingQuestion[];
   const sortedQuestions = questions.sort((a, b) => a.sortOrder - b.sortOrder);
 
-  return json({
+  return {
     assignment: assignment.data,
     training: {
       id: training.id,
@@ -112,7 +112,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     questions: sortedQuestions,
     userId,
     companyId
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -136,7 +136,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const questionsJson = formData.get("questions") as string;
 
   if (!answersJson || !questionsJson) {
-    return json({ error: "Missing answers or questions" }, { status: 400 });
+    return data({ error: "Missing answers or questions" }, { status: 400 });
   }
 
   const userAnswers = JSON.parse(answersJson) as Record<string, UserAnswer>;
@@ -226,13 +226,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     });
   }
 
-  return json({
+  return {
     passed,
     score,
     totalQuestions,
     userAnswers: gradedAnswers,
     correctAnswers
-  });
+  };
 }
 
 export default function TrainingWizard() {

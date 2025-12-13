@@ -1,8 +1,6 @@
-import { json } from "@remix-run/react";
-
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { deleteShipmentLine } from "~/modules/inventory";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -17,14 +15,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const lineDelete = await deleteShipmentLine(client, id);
 
   if (lineDelete.error) {
-    return json({
+    return {
       success: false,
       message: lineDelete.error.message
-    });
+    };
   }
 
-  return json({
+  return {
     success: true,
     message: "Shipment line deleted successfully"
-  });
+  };
 }

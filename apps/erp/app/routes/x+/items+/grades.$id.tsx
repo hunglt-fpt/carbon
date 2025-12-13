@@ -2,9 +2,8 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
   getMaterialGrade,
   materialGradeValidator,
@@ -34,9 +33,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     materialGrade: materialGrade?.data ?? null
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -61,7 +60,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (updateMaterialGrade.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

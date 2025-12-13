@@ -4,8 +4,8 @@ import { flash } from "@carbon/auth/session.server";
 import type { notifyTask } from "@carbon/jobs/trigger/notify";
 import { NotificationEvent } from "@carbon/notifications";
 import { tasks } from "@trigger.dev/sdk";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import { salesRFQStatusType, updateSalesRFQStatus } from "~/modules/sales";
 import { getCompanySettings } from "~/modules/settings/settings.service";
 import { path } from "~/utils/path";
@@ -51,10 +51,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       });
     } catch (err) {
       console.error("Failed to trigger notification", err);
-      return json({
+      return {
         success: false,
         message: "Failed to send notification"
-      });
+      };
     }
   }
 

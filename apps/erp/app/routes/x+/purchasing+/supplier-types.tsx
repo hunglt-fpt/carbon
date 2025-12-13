@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { getSupplierTypes } from "~/modules/purchasing";
 import { SupplierTypesTable } from "~/modules/purchasing/ui/SupplierTypes";
 import type { Handle } from "~/utils/handle";
@@ -25,9 +24,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const search = searchParams.get("search");
   const { limit, offset, sorts } = getGenericQueryFilters(searchParams);
 
-  return json(
-    await getSupplierTypes(client, companyId, { search, limit, offset, sorts })
-  );
+  return await getSupplierTypes(client, companyId, {
+    search,
+    limit,
+    offset,
+    sorts
+  });
 }
 
 export default function SupplierTypesRoute() {

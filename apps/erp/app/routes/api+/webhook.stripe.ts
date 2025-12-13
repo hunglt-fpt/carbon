@@ -4,8 +4,8 @@ import {
   processStripeEvent,
   syncStripeDataToKV
 } from "@carbon/stripe/stripe.server";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -25,14 +25,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (!signature) {
     console.error("No signature");
-    return json({ error: "No signature" }, { status: 400 });
+    return data({ error: "No signature" }, { status: 400 });
   }
 
   try {
     await processStripeEvent({ body, signature });
-    return json({ success: true });
+    return { success: true };
   } catch (error) {
     console.error("Stripe webhook error:", error);
-    return json({ error: "Webhook processing failed" }, { status: 400 });
+    return data({ error: "Webhook processing failed" }, { status: 400 });
   }
 }

@@ -1,10 +1,8 @@
-import { json } from "@remix-run/react";
-
 import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import {
   trainingQuestionValidator,
   upsertTrainingQuestion
@@ -30,13 +28,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json(
+    return data(
       { success: false },
       await flash(request, error(validation.error, "Failed to update question"))
     );
   }
 
-  const { matchingPairs, correctBoolean, ...data } = validation.data;
+  const { matchingPairs, correctBoolean, ...rest } = validation.data;
 
   // Parse matchingPairs if it's a string
   let parsedMatchingPairs = null;
@@ -50,17 +48,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const update = await upsertTrainingQuestion(client, {
     id: questionId,
-    ...data,
-    options: options.length > 0 ? options : data.options,
+    ...rest,
+    options: options.length > 0 ? options : rest.options,
     correctAnswers:
-      correctAnswers.length > 0 ? correctAnswers : data.correctAnswers,
+      correctAnswers.length > 0 ? correctAnswers : rest.correctAnswers,
     matchingPairs: parsedMatchingPairs,
+    // @ts-expect-error correctBoolean can be string or boolean we already validate in zod, can remove here
     correctBoolean: correctBoolean === true || correctBoolean === "true",
     updatedBy: userId
   });
 
   if (update.error) {
-    return json(
+    return data(
       { success: false },
       await flash(
         request,
@@ -69,5 +68,5 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json({ success: true });
+  return { success: true };
 }

@@ -1,16 +1,14 @@
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import { ResizablePanels } from "~/components/Layout";
-import { PartProperties } from "~/modules/items/ui/Parts";
-
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { useRouteData } from "@carbon/remix";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer } from "@vercel/remix";
 import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Await, Outlet, useLoaderData, useParams } from "react-router";
+import { ResizablePanels } from "~/components/Layout";
 import type { ItemFile, PartSummary } from "~/modules/items";
 import { getPartUsedIn } from "~/modules/items";
 import type { UsedInNode } from "~/modules/items/ui/Item/UsedIn";
 import { UsedInSkeleton, UsedInTree } from "~/modules/items/ui/Item/UsedIn";
+import { PartProperties } from "~/modules/items/ui/Parts";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -22,7 +20,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = params;
   if (!itemId) throw new Error("Could not find itemId");
 
-  return defer({ usedIn: getPartUsedIn(client, itemId, companyId) });
+  return { usedIn: getPartUsedIn(client, itemId, companyId) };
 }
 
 export default function PartViewRoute() {

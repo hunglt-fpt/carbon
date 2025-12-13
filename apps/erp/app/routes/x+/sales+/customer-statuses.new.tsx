@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { json, redirect, useNavigate } from "react-router";
 import { customerStatusValidator, upsertCustomerStatus } from "~/modules/sales";
 import CustomerStatusForm from "~/modules/sales/ui/CustomerStatuses/CustomerStatusForm";
 import { setCustomFields } from "~/utils/form";
@@ -46,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (insertCustomerStatus.error) {
     return modal
-      ? json(insertCustomerStatus)
+      ? insertCustomerStatus
       : redirect(
           requestReferrer(request) ??
             `${path.to.customerStatuses}?${getParams(request)}`,
@@ -61,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertCustomerStatus)
+    ? insertCustomerStatus
     : redirect(
         `${path.to.customerStatuses}?${getParams(request)}`,
         await flash(request, success("Customer status created"))

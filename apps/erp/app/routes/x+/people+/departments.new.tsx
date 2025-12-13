@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, json, redirect, useNavigate } from "react-router";
 import { departmentValidator, upsertDepartment } from "~/modules/people";
 import { DepartmentForm } from "~/modules/people/ui/Departments";
 import { setCustomFields } from "~/utils/form";
@@ -37,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (createDepartment.error) {
     return modal
-      ? json(
+      ? data(
           createDepartment,
           await flash(
             request,
@@ -54,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(createDepartment, { status: 201 })
+    ? data(createDepartment, { status: 201 })
     : redirect(
         path.to.departments,
         await flash(request, success("Department created"))

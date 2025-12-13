@@ -3,13 +3,15 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone } from "@internationalized/date";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
-  LocationForm,
   getLocation,
+  LocationForm,
   locationValidator,
   upsertLocation
 } from "~/modules/resources";
@@ -34,9 +36,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     location: location.data
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

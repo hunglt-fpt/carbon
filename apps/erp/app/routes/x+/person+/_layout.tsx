@@ -1,7 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet } from "@remix-run/react";
-import { type LoaderFunctionArgs, type MetaFunction } from "@vercel/remix";
+import {
+  type LoaderFunctionArgs,
+  type MetaFunction,
+  Outlet
+} from "react-router";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Carbon | People" }];

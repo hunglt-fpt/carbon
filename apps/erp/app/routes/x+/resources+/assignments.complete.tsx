@@ -1,9 +1,8 @@
 import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { redirect } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { insertTrainingCompletion } from "~/modules/resources";
 import { path } from "~/utils/path";
 
@@ -19,7 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const period = formData.get("period");
 
   if (!trainingAssignmentId || !employeeId) {
-    return json(
+    return data(
       { error: "Missing required fields" },
       {
         status: 400,
@@ -38,7 +37,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (result.error) {
-    return json(
+    return data(
       { error: result.error.message },
       {
         status: 500,
@@ -50,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json(
+  return data(
     { success: true },
     {
       headers: await flash(request, success("Training marked as complete"))

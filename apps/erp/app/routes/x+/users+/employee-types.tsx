@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { EmployeeTypesTable, getEmployeeTypes } from "~/modules/users";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -33,10 +32,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     filters
   });
 
-  return json({
+  return {
     data: employeeTypes.data ?? [],
     count: employeeTypes.count ?? 0
-  });
+  };
 }
 
 export default function EmployeeTypesRoute() {

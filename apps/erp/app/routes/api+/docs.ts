@@ -1,14 +1,16 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import swaggerDocsSchema from "@carbon/database/swagger-docs-schema";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
 import { docsQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, {});
 
-  return json(swaggerDocsSchema);
+  return swaggerDocsSchema;
 }
 
 export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {

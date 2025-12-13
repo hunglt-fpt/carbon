@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, Outlet, redirect, useLoaderData } from "react-router";
 import {
   accountProfileValidator,
   getAllAttributeCategories,
@@ -43,10 +42,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     employeeSummary: employeeSummary.data,
     attributeCategories: attributeCategories.data ?? []
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -74,7 +73,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     about
   });
   if (updateAccount.error)
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -82,7 +81,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
 
-  return json({}, await flash(request, success("Updated profile")));
+  return data({}, await flash(request, success("Updated profile")));
 }
 
 export default function PersonRoute() {

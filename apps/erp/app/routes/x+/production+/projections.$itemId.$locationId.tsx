@@ -3,9 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import { demandProjectionValidator } from "~/modules/production/production.models";
 import {
   getDemandProjections,
@@ -64,10 +63,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ...weekValues
   };
 
-  return json({
+  return {
     periods: periods.data ?? [],
     initialValues
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -117,7 +116,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const result = await upsertDemandProjections(client, demandProjections);
 
   if (result.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

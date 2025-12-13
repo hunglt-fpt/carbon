@@ -8,15 +8,14 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { Receipt, ReceiptLine } from "~/modules/inventory";
 import {
+  getReceipt,
   ReceiptForm,
   ReceiptLines,
-  getReceipt,
   receiptValidator,
   upsertReceipt
 } from "~/modules/inventory";
@@ -43,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const currentReceipt = await getReceipt(client, id);
   if (currentReceipt.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -119,7 +118,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (updateReceipt.error) {
-      return json(
+      return data(
         {},
         await flash(
           request,

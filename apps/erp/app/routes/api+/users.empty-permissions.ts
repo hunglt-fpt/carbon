@@ -1,8 +1,8 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { getModules } from "~/modules/users";
 import { makeEmptyPermissionsFromModules } from "~/modules/users/users.server";
 
@@ -14,7 +14,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const modules = await getModules(client);
   if (modules.error || modules.data === null) {
-    return json(
+    return data(
       {
         permissions: {}
       },
@@ -22,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     permissions: makeEmptyPermissionsFromModules(modules.data)
-  });
+  };
 }

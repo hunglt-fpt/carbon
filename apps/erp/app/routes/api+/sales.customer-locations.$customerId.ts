@@ -1,9 +1,12 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
+import { data } from "react-router";
 import { getCustomerLocations } from "~/modules/sales";
 import { customerLocationsQuery } from "~/utils/react-query";
 
@@ -15,13 +18,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { customerId } = params;
 
   if (!customerId)
-    return json({
+    return {
       data: []
-    });
+    };
 
   const locations = await getCustomerLocations(authorized.client, customerId);
   if (locations.error) {
-    return json(
+    return data(
       locations,
       await flash(
         request,
@@ -30,7 +33,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json(locations);
+  return locations;
 }
 
 export async function clientLoader({

@@ -19,9 +19,13 @@ import {
 } from "@carbon/react";
 import { Edition } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
-import { Link, useLoaderData } from "@remix-run/react";
 import { tasks } from "@trigger.dev/sdk";
-import { type ActionFunctionArgs, json, redirect } from "@vercel/remix";
+import {
+  type ActionFunctionArgs,
+  Link,
+  redirect,
+  useLoaderData
+} from "react-router";
 import {
   AddressAutocomplete,
   Currency,
@@ -47,12 +51,12 @@ export async function loader({ request }: ActionFunctionArgs) {
   const company = await getCompany(client, companyId ?? 1);
 
   if (company.error || !company.data) {
-    return json({
+    return {
       company: null
-    });
+    };
   }
 
-  return json({ company: company.data });
+  return { company: company.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, json, redirect, useNavigate } from "react-router";
 import {
   supplierStatusValidator,
   upsertSupplierStatus
@@ -49,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (insertSupplierStatus.error) {
     return modal
-      ? json(insertSupplierStatus)
+      ? insertSupplierStatus
       : redirect(
           `${path.to.supplierStatuses}?${getParams(request)}`,
           await flash(
@@ -63,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertSupplierStatus, { status: 201 })
+    ? data(insertSupplierStatus, { status: 201 })
     : redirect(
         `${path.to.supplierStatuses}?${getParams(request)}`,
         await flash(request, success("Supplier status created"))

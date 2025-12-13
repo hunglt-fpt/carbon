@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getQuoteLinesList } from "~/modules/sales";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -9,7 +8,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const { id } = params;
-  if (!id) return json({ data: [], error: null });
+  if (!id) return { data: [], error: null };
 
-  return json(await getQuoteLinesList(client, id));
+  return await getQuoteLinesList(client, id);
 }

@@ -2,10 +2,12 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
   getSupplierType,
   supplierTypeValidator,
@@ -43,9 +45,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     supplierType: supplierType.data
-  });
+  };
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
@@ -80,7 +82,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (updateSupplierType.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

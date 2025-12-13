@@ -1,7 +1,6 @@
 import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { copyQuote } from "~/modules/sales/sales.service";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -18,10 +17,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const quoteId = String(formData.get("quoteId"));
 
   if (!quoteId)
-    return json({
+    return {
       success: false,
       message: "Invalid form data"
-    });
+    };
 
   const serviceRole = await getCarbonServiceRole();
 
@@ -33,16 +32,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (copy.error) {
-    return json({
+    return {
       success: false,
       message: "Failed to duplicate quote"
-    });
+    };
   }
 
-  return json({
+  return {
     success: true,
     data: {
       newQuoteId: copy.data?.newQuoteId
     }
-  });
+  };
 }

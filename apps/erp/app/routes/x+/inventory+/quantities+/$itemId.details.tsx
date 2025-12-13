@@ -1,9 +1,8 @@
 import { error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { useShelves } from "~/components/Form/Shelf";
 import { InventoryDetails } from "~/modules/inventory";
 import {
@@ -131,12 +130,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     pickMethod: pickMethod.data,
     quantities: quantities.data,
     itemShelfQuantities: itemShelfQuantities.data,
     item: item.data
-  });
+  };
 }
 
 export default function ItemInventoryRoute() {

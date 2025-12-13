@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { PanelProvider } from "~/components/Layout/Panels";
 import {
   getWarehouseTransfer,
@@ -55,10 +54,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     warehouseTransfer: warehouseTransfer.data,
     warehouseTransferLines: warehouseTransferLines.data ?? []
-  });
+  };
 }
 
 export default function WarehouseTransferRoute() {

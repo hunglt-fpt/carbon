@@ -1,10 +1,26 @@
 import { CONTROLLED_ENVIRONMENT, error, getBrowserEnv } from "@carbon/auth";
 import { getSessionFlash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import { Button, Heading, toast, Toaster } from "@carbon/react";
+import {
+  Button,
+  Heading,
+  OperatingSystemContextProvider,
+  Toaster,
+  toast
+} from "@carbon/react";
+import { getPreferenceHeaders, useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { modeValidator, themes } from "@carbon/utils";
+import { I18nProvider } from "@react-aria/i18n";
+import { Analytics } from "@vercel/analytics/react";
+import React, { useEffect } from "react";
+import type {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  MetaFunction
+} from "react-router";
 import {
+  data,
   isRouteErrorResponse,
   Links,
   Meta,
@@ -13,20 +29,11 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRouteError
-} from "@remix-run/react";
-import { Analytics } from "@vercel/analytics/react";
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction
-} from "@vercel/remix";
-import { json } from "@vercel/remix";
-import React, { useEffect } from "react";
+} from "react-router";
 import { getMode, setMode } from "~/services/mode.server";
 import Background from "~/styles/background.css?url";
 import NProgress from "~/styles/nprogress.css?url";
 import Tailwind from "~/styles/tailwind.css?url";
-import { useMode } from "@carbon/remix";
 import { getTheme } from "./services/theme.server";
 
 export function links() {
@@ -59,7 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const sessionFlash = await getSessionFlash(request);
 
-  return json(
+  return data(
     {
       env: {
         CARBON_EDITION,
@@ -73,6 +80,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
       mode: getMode(request),
       theme: getTheme(request),
+      preferences: getPreferenceHeaders(request),
       result: sessionFlash?.result
     },
     {
@@ -87,12 +95,12 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json(error(validation.error, "Invalid mode"), {
+    return data(error(validation.error, "Invalid mode"), {
       status: 400
     });
   }
 
-  return json(
+  return data(
     {},
     {
       headers: { "Set-Cookie": setMode(validation.data.mode) }
@@ -172,6 +180,7 @@ export default function App() {
   const env = loaderData?.env ?? {};
   const result = loaderData?.result;
   const theme = loaderData?.theme ?? "blue";
+  const prefs = loaderData?.preferences;
 
   /* Toast Messages */
   useEffect(() => {
@@ -194,15 +203,18 @@ export default function App() {
   const mode = useMode();
 
   return (
-    <Document mode={mode} theme={theme}>
-      <Outlet />
-      {/* <FlashOverlay /> */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.env = ${JSON.stringify(env)}`
-        }}
-      />
-    </Document>
+    <OperatingSystemContextProvider platform={prefs.platform}>
+      <I18nProvider locale={prefs.locale}>
+        <Document mode={mode} theme={theme}>
+          <Outlet />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.env = ${JSON.stringify(env)};`
+            }}
+          />
+        </Document>
+      </I18nProvider>
+    </OperatingSystemContextProvider>
   );
 }
 

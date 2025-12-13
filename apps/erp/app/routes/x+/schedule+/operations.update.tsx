@@ -1,7 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { scheduleOperationUpdateValidator } from "~/modules/production/production.models";
 export async function action({ request }: ActionFunctionArgs) {
   const { client, userId } = await requirePermissions(request, {
@@ -12,10 +11,10 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json({
+    return {
       success: false,
       message: "Invalid form data"
-    });
+    };
   }
 
   const { error } = await client
@@ -29,8 +28,8 @@ export async function action({ request }: ActionFunctionArgs) {
     .eq("id", validation.data.id);
 
   if (error) {
-    return json({ success: false, message: error.message });
+    return { success: false, message: error.message };
   }
 
-  return json({ success: true });
+  return { success: true };
 }

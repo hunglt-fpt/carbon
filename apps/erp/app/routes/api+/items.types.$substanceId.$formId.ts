@@ -1,7 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
+import { data } from "react-router";
 import { getMaterialTypeList } from "~/modules/items";
 import { getCompanyId, materialTypesQuery } from "~/utils/react-query";
 
@@ -12,19 +15,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   if (!params.substanceId || !params.formId) {
-    return json(
+    return data(
       { error: "Substance ID and Form ID are required" },
       { status: 400 }
     );
   }
 
-  return json(
-    await getMaterialTypeList(
-      client,
-      params.substanceId,
-      params.formId,
-      companyId
-    )
+  return await getMaterialTypeList(
+    client,
+    params.substanceId,
+    params.formId,
+    companyId
   );
 }
 

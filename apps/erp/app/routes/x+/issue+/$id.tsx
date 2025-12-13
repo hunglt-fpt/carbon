@@ -2,10 +2,15 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
 import { Suspense } from "react";
+import type { LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { getItemFiles } from "~/modules/items";
 import {
@@ -62,7 +67,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     associations: getIssueAssociations(client, id, companyId),
     files: getItemFiles(client, id, companyId),
     nonConformance: nonConformance.data,
@@ -70,7 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     requiredActions: requiredActions.data ?? [],
     suppliers: suppliers.data ?? [],
     tags: tags.data ?? []
-  });
+  };
 }
 
 export default function IssueRoute() {

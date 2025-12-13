@@ -241,7 +241,10 @@ export function useTree<TData, TFilterValue>({
 
   const virtualizer = useVirtualizer({
     count: state.visibleNodeIds.length,
-    getItemKey: (index) => state.visibleNodeIds[index],
+    getItemKey: useCallback(
+      (index: number) => state.visibleNodeIds[index],
+      [state.visibleNodeIds]
+    ),
     getScrollElement: () => parentRef.current,
     estimateSize: (index: number) => {
       return estimatedRowHeight({

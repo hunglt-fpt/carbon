@@ -7,8 +7,8 @@ import {
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { stepRecordValidator } from "~/services/models";
 import { insertAttributeRecord } from "~/services/operations.service";
 
@@ -31,7 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (attributeRecord.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -40,7 +40,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json(
+  return data(
     { success: true },
     await flash(request, success("Attribute recorded successfully"))
   );

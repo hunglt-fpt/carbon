@@ -1,17 +1,9 @@
-import { type JSONContent } from "@carbon/react";
-
-import {
-  Outlet,
-  json,
-  redirect,
-  useLoaderData,
-  useParams
-} from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { type JSONContent } from "@carbon/react";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { ResizablePanels } from "~/components/Layout";
 import type { FlatTreeItem } from "~/components/TreeView";
 import { flattenTree } from "~/components/TreeView";
@@ -102,7 +94,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     makeMethod: makeMethod.data,
     methodMaterials:
       methodMaterials.data?.map((m) => ({
@@ -130,7 +122,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     configurationRules: partManufacturing.data?.requiresConfiguration
       ? await getConfigurationRules(client, itemId, companyId)
       : []
-  });
+  };
 }
 
 export default function PartManufacturing() {

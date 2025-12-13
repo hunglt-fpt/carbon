@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getBatchNumbersForItem } from "~/services/inventory.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -9,16 +8,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const itemId = url.searchParams.get("itemId");
   if (!itemId) {
-    return json({
+    return {
       data: [],
       error: null
-    });
+    };
   }
 
-  return json(
-    await getBatchNumbersForItem(client, {
-      companyId,
-      itemId
-    })
-  );
+  return await getBatchNumbersForItem(client, {
+    companyId,
+    itemId
+  });
 }

@@ -3,9 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
-import { useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import { useRouteData } from "~/hooks";
 import type { AccountListItem } from "~/modules/accounting";
 import {
@@ -43,9 +42,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     defaultAccounts: defaultAccounts.data
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -72,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
       updatedBy: userId
     });
     if (updateDefaults.error) {
-      return json(
+      return data(
         {},
         await flash(
           request,
@@ -100,7 +99,7 @@ export async function action({ request }: ActionFunctionArgs) {
       updatedBy: userId
     });
     if (updateDefaults.error) {
-      return json(
+      return data(
         {},
         await flash(
           request,

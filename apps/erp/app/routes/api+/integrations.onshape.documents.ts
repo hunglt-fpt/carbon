@@ -1,9 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { Onshape as OnshapeConfig } from "@carbon/ee";
 import { OnshapeClient } from "@carbon/ee/onshape";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  LoaderFunctionArgs,
+  ShouldRevalidateFunction
+} from "react-router";
 import { getIntegration } from "~/modules/settings/settings.service";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => {
@@ -16,10 +17,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const integration = await getIntegration(client, "onshape", companyId);
 
   if (integration.error || !integration.data) {
-    return json({
+    return {
       data: [],
       error: integration.error
-    });
+    };
   }
 
   const integrationMetadata = OnshapeConfig.schema.safeParse(
@@ -27,10 +28,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 
   if (!integrationMetadata.success) {
-    return json({
+    return {
       data: [],
       error: integrationMetadata.error
-    });
+    };
   }
 
   const onshapeClient = new OnshapeClient({
@@ -60,18 +61,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
       offset += limit;
     }
 
-    return json({
+    return {
       data: { items: allDocuments },
       error: null
-    });
+    };
   } catch (error) {
     console.error(error);
-    return json({
+    return {
       data: null,
       error:
         error instanceof Error
           ? error.message
           : "Failed to get documents from Onshape"
-    });
+    };
   }
 }

@@ -1,8 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { getIssueWorkflows } from "~/modules/quality";
 import IssueWorkflowsTable from "~/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable";
 import type { Handle } from "~/utils/handle";
@@ -34,10 +33,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     filters
   });
 
-  return json({
+  return {
     procedures: procedures.data ?? [],
     count: procedures.count ?? 0
-  });
+  };
 }
 
 export default function IssueWorkflowsRoute() {

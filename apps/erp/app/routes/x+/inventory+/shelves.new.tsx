@@ -2,10 +2,12 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate, useSearchParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs,
+  LoaderFunctionArgs
+} from "react-router";
+import { data, redirect, useNavigate, useSearchParams } from "react-router";
 import { useUser } from "~/hooks";
 import { ShelfForm, shelfValidator, upsertShelf } from "~/modules/inventory";
 import { setCustomFields } from "~/utils/form";
@@ -36,23 +38,23 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { id, ...data } = validation.data;
+  const { id, ...rest } = validation.data;
 
   const createShelf = await upsertShelf(client, {
-    ...data,
+    ...rest,
     companyId,
     customFields: setCustomFields(formData),
     createdBy: userId
   });
   if (createShelf.error) {
-    return json(
+    return data(
       {},
       await flash(request, error(createShelf.error, "Failed to insert shelf"))
     );
   }
 
   return modal
-    ? json(createShelf, { status: 201 })
+    ? data(createShelf, { status: 201 })
     : redirect(
         `${path.to.shelves}?${getParams(request)}`,
         await flash(request, success("Shelf created"))

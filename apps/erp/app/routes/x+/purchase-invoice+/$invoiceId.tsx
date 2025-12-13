@@ -2,15 +2,14 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout";
 import {
-  PurchaseInvoiceHeader,
   getPurchaseInvoice,
   getPurchaseInvoiceDelivery,
-  getPurchaseInvoiceLines
+  getPurchaseInvoiceLines,
+  PurchaseInvoiceHeader
 } from "~/modules/invoicing";
 import PurchaseInvoiceExplorer from "~/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer";
 import PurchaseInvoiceProperties from "~/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties";
@@ -59,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getSupplierInteraction(client, purchaseInvoice.data.supplierInteractionId!)
   ]);
 
-  return defer({
+  return {
     purchaseInvoice: purchaseInvoice.data,
     purchaseInvoiceLines: purchaseInvoiceLines.data ?? [],
     purchaseInvoiceDelivery: purchaseInvoiceDelivery.data,
@@ -70,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     ),
     interaction: interaction.data,
     supplier: supplier?.data ?? null
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

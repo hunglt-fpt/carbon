@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useNavigate } from "react-router";
 import { materialFinishValidator, upsertMaterialFinish } from "~/modules/items";
 import MaterialFinishForm from "~/modules/items/ui/MaterialFinishes/MaterialFinishForm";
 
@@ -36,14 +35,14 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { id, ...data } = validation.data;
+  const { id, ...rest } = validation.data;
 
   const insertMaterialFinish = await upsertMaterialFinish(client, {
-    ...data,
+    ...rest,
     companyId
   });
   if (insertMaterialFinish.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -54,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const materialFinishId = insertMaterialFinish.data?.id;
   if (!materialFinishId) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -64,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertMaterialFinish, { status: 201 })
+    ? data(insertMaterialFinish, { status: 201 })
     : redirect(
         `${path.to.materialFinishes}?${getParams(request)}`,
         await flash(request, success("Finish created"))

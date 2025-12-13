@@ -8,8 +8,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { FunctionRegion } from "@supabase/supabase-js";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { scrapQuantityValidator } from "~/services/models";
 import { insertScrapQuantity } from "~/services/operations.service";
 
@@ -34,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (insertScrap.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -55,13 +54,13 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (issue.error) {
-    throw json(
+    throw data(
       insertScrap.data,
       await flash(request, error(issue.error, "Failed to issue materials"))
     );
   }
 
-  return json(
+  return data(
     insertScrap.data,
     await flash(request, success("Scrap quantity recorded successfully"))
   );

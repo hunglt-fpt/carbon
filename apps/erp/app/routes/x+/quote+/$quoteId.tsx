@@ -4,11 +4,16 @@ import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext } from "@dnd-kit/core";
-import { Outlet, useLoaderData, useParams, useSubmit } from "@remix-run/react";
-import type { PostgrestResponse } from "@supabase/supabase-js";
 import type { FileObject } from "@supabase/storage-js";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
+import type { PostgrestResponse } from "@supabase/supabase-js";
+import type { LoaderFunctionArgs } from "react-router";
+import {
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams,
+  useSubmit
+} from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
 import { getCurrencyByCode } from "~/modules/accounting";
 import type { SalesOrderLine } from "~/modules/sales";
@@ -127,7 +132,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return defer({
+  return {
     quote: quote.data,
     customer: customer.data,
     lines: lines.data ?? [],
@@ -139,7 +144,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     opportunity: opportunity.data,
     exchangeRate,
     salesOrderLines: salesOrderLines?.data ?? null
-  });
+  };
 }
 
 export default function QuoteRoute() {

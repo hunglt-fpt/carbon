@@ -15,10 +15,9 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
 import { useEffect } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useFetcher, useLoaderData } from "react-router";
 import {
   getCompanySettings,
   materialIdsValidator,
@@ -51,7 +50,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         error(companySettings.error, "Failed to get company settings")
       )
     );
-  return json({ companySettings: companySettings.data });
+  return { companySettings: companySettings.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -68,7 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
         await validator(materialIdsValidator).validate(formData);
 
       if (idsValidation.error) {
-        return json({ success: false, message: "Invalid form data" });
+        return { success: false, message: "Invalid form data" };
       }
 
       const materialIdsResult = await updateMaterialGeneratedIdsSetting(
@@ -77,12 +76,12 @@ export async function action({ request }: ActionFunctionArgs) {
         idsValidation.data.materialGeneratedIds
       );
       if (materialIdsResult.error)
-        return json({
+        return {
           success: false,
           message: materialIdsResult.error.message
-        });
+        };
 
-      return json({ success: true, message: "Material IDs setting updated" });
+      return { success: true, message: "Material IDs setting updated" };
 
     case "materialUnits":
       const unitsValidation = await validator(materialUnitsValidator).validate(
@@ -90,7 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (unitsValidation.error) {
-        return json({ success: false, message: "Invalid form data" });
+        return { success: false, message: "Invalid form data" };
       }
 
       const materialUnitsResult = await updateMetricSettings(
@@ -99,15 +98,15 @@ export async function action({ request }: ActionFunctionArgs) {
         unitsValidation.data.useMetric
       );
       if (materialUnitsResult.error)
-        return json({
+        return {
           success: false,
           message: materialUnitsResult.error.message
-        });
+        };
 
-      return json({ success: true, message: "Material units setting updated" });
+      return { success: true, message: "Material units setting updated" };
   }
 
-  return json({ success: false, message: "Invalid form data" });
+  return { success: false, message: "Invalid form data" };
 }
 
 export default function ItemsSettingsRoute() {

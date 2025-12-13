@@ -1,8 +1,7 @@
-import { json, type ActionFunctionArgs } from "@vercel/remix";
-
 import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { type ActionFunctionArgs, data } from "react-router";
 import { updateOperationOrder } from "~/modules/items";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -13,7 +12,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const updateMap = (await request.formData()).get("updates") as string;
   if (!updateMap) {
-    return json(
+    return data(
       {},
       await flash(request, error(null, "Failed to receive a new sort order"))
     );
@@ -29,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const updateSortOrders = await updateOperationOrder(client, updates);
   if (updateSortOrders.some((update) => update.error))
-    return json(
+    return data(
       {},
       await flash(
         request,

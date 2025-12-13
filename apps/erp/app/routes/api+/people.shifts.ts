@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getShiftsList } from "~/modules/people";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -9,5 +8,5 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const location = url.searchParams.get("location");
 
-  return json(await getShiftsList(authorized.client, location));
+  return await getShiftsList(authorized.client, location);
 }

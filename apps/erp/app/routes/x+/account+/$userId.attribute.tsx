@@ -2,8 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import type { ZodSchema } from "zod/v3";
 import {
   attributeBooleanValidator,
@@ -39,7 +39,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     clientClaims.permissions["users"]?.update?.includes(companyId);
 
   if (!canUpdateAnyUser && userId !== targetUserId) {
-    return json(
+    return data(
       null,
       await flash(request, error(null, "Unauthorized: Cannot update attribute"))
     );
@@ -49,7 +49,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     // check if this is a self managed attribute
     const attribute = await getAttribute(client, attributeId);
     if (attribute.error) {
-      return json(
+      return data(
         null,
         await flash(request, error(attribute.error, "Failed to get attribute"))
       );
@@ -57,7 +57,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     const canSelfManage = attribute.data?.canSelfManage ?? false;
     if (!canSelfManage) {
-      return json(
+      return data(
         null,
         await flash(
           request,
@@ -83,7 +83,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     updatedBy: userId
   });
   if (upsertAttributeValue.error) {
-    return json(
+    return data(
       null,
       await flash(
         request,
@@ -92,7 +92,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return json(null, await flash(request, success("Updated attribute value")));
+  return data(null, await flash(request, success("Updated attribute value")));
 }
 
 export default function UserAttributeValueRoute() {

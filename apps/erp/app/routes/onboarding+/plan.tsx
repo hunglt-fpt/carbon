@@ -15,10 +15,15 @@ import {
 import { getCheckoutUrl } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import { useLocale } from "@react-aria/i18n";
-import { Form, useFetcher, useLoaderData } from "@remix-run/react";
-import { json, redirect, type ActionFunctionArgs } from "@vercel/remix";
 import { useMemo } from "react";
 import { LuGraduationCap, LuMoveLeft, LuPhoneCall } from "react-icons/lu";
+import {
+  type ActionFunctionArgs,
+  Form,
+  redirect,
+  useFetcher,
+  useLoaderData
+} from "react-router";
 import { getCompany, getPlans } from "~/modules/settings";
 import { path } from "~/utils/path";
 
@@ -83,7 +88,7 @@ export async function loader({ request }: ActionFunctionArgs) {
     throw new Error("Failed to load plans");
   }
 
-  return json({ plans: plans.data?.filter((p) => p.public), companyId });
+  return { plans: plans.data?.filter((p) => p.public), companyId };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

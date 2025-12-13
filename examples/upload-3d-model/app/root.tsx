@@ -1,4 +1,6 @@
 import { Toaster } from "@carbon/react";
+import React from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   isRouteErrorResponse,
   Links,
@@ -7,11 +9,8 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useRouteError,
-} from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
-import React from "react";
+  useRouteError
+} from "react-router";
 import Tailwind from "~/styles/tailwind.css?url";
 
 export function links() {
@@ -19,18 +18,18 @@ export function links() {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  return json({
-    env: {},
-  });
+  return {
+    env: {}
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  return json({});
+  return {};
 }
 
 function Document({
   children,
-  title = "Upload RFQ",
+  title = "Upload RFQ"
 }: {
   children: React.ReactNode;
   title?: string;
@@ -62,7 +61,7 @@ export default function App() {
       <Outlet />
       <script
         dangerouslySetInnerHTML={{
-          __html: `window.env = ${JSON.stringify(env)}`,
+          __html: `window.env = ${JSON.stringify(env)}`
         }}
       />
     </Document>
@@ -73,10 +72,10 @@ export function ErrorBoundary() {
   const error = useRouteError();
 
   const message = isRouteErrorResponse(error)
-    ? error.data.message ?? error.data
+    ? (error.data.message ?? error.data)
     : error instanceof Error
-    ? error.message
-    : String(error);
+      ? error.message
+      : String(error);
 
   return (
     <Document title="Error!">

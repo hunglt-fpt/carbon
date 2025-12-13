@@ -2,8 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data, redirect } from "react-router";
 import { deleteDemandProjections } from "~/modules/production/production.service";
 import { getPeriods } from "~/modules/shared/shared.service";
 import { path } from "~/utils/path";
@@ -17,7 +17,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { itemId, locationId } = params;
 
   if (!itemId || !locationId) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -35,7 +35,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (periods.error) {
-    return json(
+    return data(
       {},
       await flash(request, error(periods.error, "Failed to load periods"))
     );
@@ -52,7 +52,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (result.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

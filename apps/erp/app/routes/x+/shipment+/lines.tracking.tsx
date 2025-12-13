@@ -1,7 +1,7 @@
 import { error, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { json, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -25,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
     .single();
 
   if (trackedEntityResponse.error) {
-    return json(
+    return data(
       { success: false, error: trackedEntityResponse.error.message },
       await flash(
         request,
@@ -37,7 +37,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const trackedEntity = trackedEntityResponse.data;
 
   if (trackedEntity.status !== "Available") {
-    return json(
+    return data(
       {
         success: false,
         error: `Tracked entity is not available. Current status: ${trackedEntity.status}`
@@ -61,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const quantity = Number(formData.get("quantity"));
 
     if (trackedEntity.quantity < quantity) {
-      return json(
+      return data(
         { success: false, error: "Batch has insufficient quantity" },
         await flash(request, error("Batch has insufficient quantity"))
       );
@@ -95,7 +95,7 @@ export async function action({ request }: ActionFunctionArgs) {
     .eq("status", "Available");
 
   if (updateResponse.error) {
-    return json(
+    return data(
       { success: false, error: updateResponse.error.message },
       await flash(
         request,
@@ -104,5 +104,5 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  return json({ success: true });
+  return { success: true };
 }

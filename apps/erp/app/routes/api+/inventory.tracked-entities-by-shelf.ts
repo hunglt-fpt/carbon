@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
 import { getItemShelfQuantities } from "~/modules/items/items.service";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -12,10 +11,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locationId = url.searchParams.get("locationId");
 
   if (!itemId || !locationId) {
-    return json({
+    return {
       data: [],
       error: null
-    });
+    };
   }
 
   // Get all tracked entities for the item in the location
@@ -27,10 +26,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   );
 
   if (result.error) {
-    return json({
+    return {
       data: [],
       error: result.error
-    });
+    };
   }
 
   // Filter to only include entities from the specific shelf
@@ -39,8 +38,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       (entity) => entity.shelfId === shelfId && entity.trackedEntityId
     ) || [];
 
-  return json({
+  return {
     data: shelfEntities,
     error: null
-  });
+  };
 }

@@ -2,9 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { getMethodOperations } from "~/modules/items";
 import { MethodOperationsTable } from "~/modules/items/ui/Methods";
 import type { Handle } from "~/utils/handle";
@@ -46,10 +45,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: operations.count ?? 0,
     operations: operations.data ?? []
-  });
+  };
 }
 
 export default function MethodOperationsRoute() {

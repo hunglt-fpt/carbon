@@ -8,9 +8,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { Json } from "@carbon/database";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import type { CompanyPermission } from "~/modules/users";
 import {
   EmployeePermissionsForm,
@@ -66,11 +65,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     permissions: claims?.permissions,
     employee: employee.data,
     employeeTypes: employeeTypes.data ?? []
-  });
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -95,7 +94,7 @@ export async function action({ request }: ActionFunctionArgs) {
       (permission) => userPermissionsValidator.safeParse(permission).success
     )
   ) {
-    return json(
+    return data(
       {},
       await flash(request, error(permissions, "Failed to parse permissions"))
     );

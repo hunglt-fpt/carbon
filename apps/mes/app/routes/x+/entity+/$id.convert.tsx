@@ -1,8 +1,7 @@
 import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { FunctionRegion } from "@supabase/supabase-js";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import { type ActionFunctionArgs, data } from "react-router";
 import { convertEntityValidator } from "~/services/models";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -23,7 +22,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (!validation.success) {
-    return json(
+    return data(
       { success: false, message: "Failed to validate payload" },
       { status: 400 }
     );
@@ -50,7 +49,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (convert.error) {
     console.error(convert.error);
-    return json(
+    return data(
       { success: false, message: "Failed to convert entity" },
       { status: 400 }
     );
@@ -58,7 +57,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   console.log(convert.data);
 
-  const data = convert.data as {
+  const converted = convert.data as {
     success: boolean;
     message: string;
     convertedEntity?: {
@@ -68,9 +67,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   };
 
-  return json({
+  return {
     success: true,
     message: "Entity converted successfully",
-    convertedEntity: data.convertedEntity
-  });
+    convertedEntity: converted.convertedEntity
+  };
 }

@@ -8,8 +8,8 @@ import {
   startOfWeek,
   today
 } from "@internationalized/date";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { z } from "zod/v3";
 import {
   deleteStockTransfer,
@@ -66,7 +66,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json(
+    return data(
       { success: false, message: "Invalid session data" },
       await flash(request, error(validation.error, "Invalid session data"))
     );
@@ -90,7 +90,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .eq("companyId", companyId)
   ]);
   if (jobResult.error || !jobResult.data) {
-    return json(
+    return data(
       { success: false, message: "Failed to get job information" },
       await flash(
         request,
@@ -108,7 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const jobStartDate = job.startDate;
 
   if (!locationId) {
-    return json(
+    return data(
       { success: false, message: "Job location is required" },
       await flash(
         request,
@@ -123,7 +123,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (periods.error || !periods.data) {
-    return json(
+    return data(
       { success: false, message: "Failed to get periods" },
       await flash(request, error(periods.error, "Failed to get periods"))
     );
@@ -241,7 +241,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         companyId
       );
       if (nextSequence.error) {
-        return json(
+        return data(
           { success: false, message: "Failed to get next sequence" },
           await flash(
             request,
@@ -259,7 +259,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       });
 
       if (createStockTransfer.error) {
-        return json(
+        return data(
           { success: false, message: "Failed to create stock transfer" },
           await flash(
             request,
@@ -278,7 +278,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       if (createStockTransferLines.error) {
         await deleteStockTransfer(client, createStockTransfer.data.id);
-        return json(
+        return data(
           { success: false, message: "Failed to create stock transfer lines" },
           await flash(
             request,
@@ -625,7 +625,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       ? `Successfully created ${createdItems.join(", ")}`
       : "Session processed successfully, but without any transfers or orders";
 
-  return json(
+  return data(
     { success: true, message: successMessage },
     await flash(request, success(successMessage))
   );

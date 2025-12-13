@@ -8,10 +8,11 @@ import {
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs
+} from "react-router";
+import { data, json, redirect, useNavigate, useParams } from "react-router";
 import {
   insertSupplierContact,
   supplierContactValidator
@@ -96,7 +97,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     return modal
-      ? json(createSupplierContact)
+      ? createSupplierContact
       : redirect(
           path.to.supplierContacts(supplierId),
           await flash(request, error(createSupplierContact.error, errorMessage))
@@ -104,7 +105,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(createSupplierContact, { status: 201 })
+    ? data(createSupplierContact, { status: 201 })
     : redirect(
         path.to.supplierContacts(supplierId),
         await flash(request, success("Supplier contact created"))

@@ -9,9 +9,8 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
-import { useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData } from "react-router";
 import { getAttributeCategoryWithValues } from "~/modules/account";
 import { UserAttributesForm } from "~/modules/account/ui/UserAttributes";
 import { path } from "~/utils/path";
@@ -42,9 +41,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     category: category.data
-  });
+  };
 }
 
 export default function PersonAttributeCategoryRoute() {

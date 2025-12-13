@@ -1,21 +1,16 @@
-import { RemixServer } from "@remix-run/react";
-import type { EntryContext } from "@vercel/remix";
-import { handleRequest } from "@vercel/remix";
-
-
+import { handleRequest } from "@vercel/react-router/entry.server";
+import { type EntryContext } from "react-router";
 
 export default async function (
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  remixContext: EntryContext
+  reactRouterContext: EntryContext
 ) {
-
- 
   return handleRequest(
     request,
     responseStatusCode,
     responseHeaders,
-    <RemixServer context={remixContext} url={request.url} />
+    reactRouterContext
   );
 }

@@ -5,15 +5,14 @@ import {
   InputGroup,
   InputLeftAddon,
   toast,
-  TooltipProvider,
+  TooltipProvider
 } from "@carbon/react";
-import { useFetcher } from "@remix-run/react";
-import { json } from "@vercel/remix";
 import { useEffect, useState } from "react";
+import { data, useFetcher } from "react-router";
 
 import { ModelUpload } from "~/components/ModelUpload";
 
-import type { ActionFunctionArgs } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { carbon } from "~/lib/carbon.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -22,16 +21,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (!file || !(file instanceof File)) {
     console.warn("No valid file provided in request");
-    return json({ error: "No file provided", data: null }, { status: 400 });
+    return data({ error: "No file provided", data: null }, { status: 400 });
   }
 
   const upload = await carbon.uploadModel(file);
 
   if (upload.error) {
-    return json({ error: upload.error.message, data: null }, { status: 500 });
+    return data({ error: upload.error.message, data: null }, { status: 500 });
   }
 
-  return json(upload);
+  return upload;
 }
 
 export default function Route() {
@@ -62,7 +61,7 @@ export default function Route() {
 
     fetcher.submit(formData, {
       method: "post",
-      encType: "multipart/form-data",
+      encType: "multipart/form-data"
     });
   };
 

@@ -5,11 +5,16 @@ import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Spinner } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
-import { Await, Outlet, useLoaderData, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { defer, redirect } from "@vercel/remix";
 import { Suspense } from "react";
 import { Fragment } from "react/jsx-runtime";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  Await,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useParams
+} from "react-router";
 import {
   getPurchaseInvoiceLine,
   PurchaseInvoiceLineForm,
@@ -36,10 +41,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const purchaseInvoiceLine = await getPurchaseInvoiceLine(client, lineId);
 
-  return defer({
+  return {
     purchaseInvoiceLine: purchaseInvoiceLine?.data ?? null,
     files: getSupplierInteractionLineDocuments(client, companyId, lineId)
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {

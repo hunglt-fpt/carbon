@@ -1,8 +1,8 @@
 import { getAppUrl } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { VStack } from "@carbon/react";
-import { json, Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { CustomerPortalsTable } from "~/modules/sales/ui/CustomerPortals";
 import { getCustomerPortals } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
@@ -26,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  return json({
+  return {
     appUrl: getAppUrl(),
     ...(await getCustomerPortals(client, companyId, {
       search,
@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       sorts,
       filters
     }))
-  });
+  };
 }
 
 export default function CustomerPortalsRoute() {

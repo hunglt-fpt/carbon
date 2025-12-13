@@ -1,7 +1,7 @@
 import { getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { validationError, validator } from "@carbon/form";
-import { json, redirect, type ActionFunctionArgs } from "@vercel/remix";
+import { type ActionFunctionArgs, data, redirect } from "react-router";
 import {
   getMethodValidator,
   upsertMakeMethodFromQuoteLine,
@@ -36,11 +36,11 @@ export async function action({ request }: ActionFunctionArgs) {
       userId
     });
 
-    return json({
+    return {
       error: lineMethod.error
         ? "Failed to save quote method to make method"
         : null
-    });
+    };
   }
 
   if (type === "method") {
@@ -56,15 +56,15 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (makeMethod.error) {
-      return json({
+      return {
         error: makeMethod.error
           ? "Failed to save quote method to make method"
           : null
-      });
+      };
     }
 
     throw redirect(requestReferrer(request) ?? path.to.quotes);
   }
 
-  return json({ error: "Invalid type" }, { status: 400 });
+  return data({ error: "Invalid type" }, { status: 400 });
 }

@@ -26,10 +26,14 @@ import {
   parseAbsolute,
   toZoned
 } from "@internationalized/date";
-import { Link, useLoaderData } from "@remix-run/react";
-import { json, type LoaderFunctionArgs, redirect } from "@vercel/remix";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuCirclePlus, LuSettings2, LuTriangleAlert } from "react-icons/lu";
+import {
+  Link,
+  type LoaderFunctionArgs,
+  redirect,
+  useLoaderData
+} from "react-router";
 import { SearchFilter } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
@@ -220,7 +224,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       return true;
     }) ?? [];
 
-  return json({
+  return {
     columns: filteredWorkCenters
       .map((wc) => ({
         id: wc.id!,
@@ -295,7 +299,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     ).map(([tag]) => tag),
     tags: tags.data ?? [],
     locationId
-  });
+  };
 }
 
 const defaultDisplaySettings: DisplaySettings = {

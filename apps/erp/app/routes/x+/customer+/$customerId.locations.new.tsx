@@ -2,10 +2,11 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ClientActionFunctionArgs } from "@remix-run/react";
-import { useNavigate, useParams } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type {
+  ActionFunctionArgs,
+  ClientActionFunctionArgs
+} from "react-router";
+import { data, redirect, useNavigate, useParams } from "react-router";
 import { useUser } from "~/hooks";
 import {
   customerLocationValidator,
@@ -48,7 +49,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
   if (createCustomerLocation.error) {
     return modal
-      ? json(createCustomerLocation)
+      ? createCustomerLocation
       : redirect(
           path.to.customerLocations(customerId),
           await flash(
@@ -62,7 +63,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(createCustomerLocation, { status: 201 })
+    ? data(createCustomerLocation, { status: 201 })
     : redirect(
         path.to.customerLocations(customerId),
         await flash(request, success("Customer location created"))

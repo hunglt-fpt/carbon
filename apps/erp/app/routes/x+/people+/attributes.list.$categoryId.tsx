@@ -1,9 +1,14 @@
 import { assertIsPost, error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import {
+  data,
+  Outlet,
+  redirect,
+  useLoaderData,
+  useNavigate
+} from "react-router";
 import { useUrlParams } from "~/hooks";
 import {
   getAttributeCategory,
@@ -32,7 +37,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({ attributeCategory: attributeCategory.data });
+  return { attributeCategory: attributeCategory.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -43,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const updateMap = (await request.formData()).get("updates") as string;
   if (!updateMap) {
-    return json(
+    return data(
       {},
       await flash(request, error(null, "Failed to receive a new sort order"))
     );
@@ -59,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const updateSortOrders = await updateAttributeSortOrder(client, updates);
   if (updateSortOrders.some((update) => update.error))
-    return json(
+    return data(
       {},
       await flash(
         request,

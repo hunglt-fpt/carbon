@@ -15,12 +15,6 @@ import {
 } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { validator } from "@carbon/form";
-
-import { Link, useFetcher, useLocation } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-import { useEffect, useRef, useState } from "react";
-
 import {
   Alert,
   AlertDescription,
@@ -28,7 +22,10 @@ import {
   Button,
   VStack
 } from "@carbon/react";
+import { useEffect, useRef, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, Link, redirect, useFetcher, useLocation } from "react-router";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -36,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (authSession) await destroyAuthSession(request);
 
-  return json({});
+  return {};
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -47,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json(error(validation.error, "Invalid callback form"), {
+    return data(error(validation.error, "Invalid callback form"), {
       status: 400
     });
   }

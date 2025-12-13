@@ -2,9 +2,8 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, json, redirect, useLoaderData } from "react-router";
 import {
   getJobOperations,
   productionEventValidator,
@@ -29,7 +28,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       value: operation.id
     })) ?? [];
 
-  return json({ operationOptions });
+  return { operationOptions };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -63,7 +62,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     createdBy: userId
   });
   if (insert.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -73,7 +72,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insert, { status: 201 })
+    ? data(insert, { status: 201 })
     : redirect(
         `${path.to.jobProductionEvents(jobId)}?${getParams(request)}`,
         await flash(request, success("Production event created"))

@@ -2,11 +2,10 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import { getSupplierTypes } from "~/modules/purchasing";
-import { SupplierAccountsTable, getSuppliers } from "~/modules/users";
+import { getSuppliers, SupplierAccountsTable } from "~/modules/users";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -55,11 +54,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     count: suppliers.count ?? 0,
     suppliers: suppliers.data,
     supplierTypes: supplierTypes.data
-  });
+  };
 }
 
 export default function UsersSuppliersRoute() {

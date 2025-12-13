@@ -3,8 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, now } from "@internationalized/date";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { productionEventValidator } from "~/services/models";
 import {
   endProductionEvent,
@@ -46,13 +45,13 @@ export async function action({ request }: ActionFunctionArgs) {
     );
 
     if (startEvent.error) {
-      return json(
+      return data(
         {},
         await flash(request, error(startEvent.error, "Failed to start event"))
       );
     }
 
-    return json(
+    return data(
       startEvent.data,
       await flash(
         request,
@@ -61,7 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   } else {
     if (!id) {
-      return json({}, await flash(request, error("No event id provided")));
+      return data({}, await flash(request, error("No event id provided")));
     }
     const endEvent = await endProductionEvent(client, {
       id,
@@ -69,12 +68,12 @@ export async function action({ request }: ActionFunctionArgs) {
       employeeId: userId
     });
     if (endEvent.error) {
-      return json(
+      return data(
         {},
         await flash(request, error(endEvent.error, "Failed to end event"))
       );
     }
-    return json(
+    return data(
       endEvent.data,
       await flash(
         request,

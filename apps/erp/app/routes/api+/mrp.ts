@@ -1,7 +1,6 @@
 import { assertIsPost, getCarbonServiceRole } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type { ActionFunctionArgs } from "react-router";
 import { runMRP } from "~/modules/production/production.service";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -21,5 +20,5 @@ export async function action({ request }: ActionFunctionArgs) {
     userId
   });
 
-  return json(result);
+  return result;
 }

@@ -2,9 +2,8 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useNavigate } from "react-router";
 import { materialFormValidator, upsertMaterialForm } from "~/modules/items";
 import { MaterialShapeForm } from "~/modules/items/ui/MaterialShapes";
 import { setCustomFields } from "~/utils/form";
@@ -34,16 +33,16 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  const { id, ...data } = validation.data;
+  const { id, ...rest } = validation.data;
 
   const insertMaterialForm = await upsertMaterialForm(client, {
-    ...data,
+    ...rest,
     companyId,
     createdBy: userId,
     customFields: setCustomFields(formData)
   });
   if (insertMaterialForm.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -54,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const materialFormId = insertMaterialForm.data?.id;
   if (!materialFormId) {
-    return json(
+    return data(
       {},
       await flash(
         request,
@@ -64,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return modal
-    ? json(insertMaterialForm, { status: 201 })
+    ? data(insertMaterialForm, { status: 201 })
     : redirect(
         `${path.to.materialForms}?${getParams(request)}`,
         await flash(request, success("Material form created"))

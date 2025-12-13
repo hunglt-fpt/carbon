@@ -1,11 +1,16 @@
-import { Input, Number, Select, ValidatedForm, validator } from "@carbon/form";
-import { Button, Heading, toast, TooltipProvider } from "@carbon/react";
-import { useFetcher } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import {
+  Input,
+  Number as NumberInput,
+  Select,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
+import { Button, Heading, TooltipProvider, toast } from "@carbon/react";
 import { useEffect } from "react";
-import { z } from 'zod/v3';
+import type { ActionFunctionArgs } from "react-router";
+import { data, useFetcher } from "react-router";
 import { zfd } from "zod-form-data";
+import { z } from "zod/v3";
 import { CONFIGURED_ITEM_ID } from "~/config";
 import { carbon } from "~/lib/carbon.server";
 
@@ -14,7 +19,7 @@ const formValidator = z.object({
   material: z.string().min(1),
   height: zfd.numeric(z.number().min(0)),
   width: zfd.numeric(z.number().min(0)),
-  length: zfd.numeric(z.number().min(0)),
+  length: zfd.numeric(z.number().min(0))
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -23,11 +28,11 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json(
+    return data(
       {
         success: false,
         message: "Invalid form data",
-        data: null,
+        data: null
       },
       { status: 500 }
     );
@@ -38,26 +43,26 @@ export async function action({ request }: ActionFunctionArgs) {
   // Get customer by email (you'll need to add email to the form)
   const [customer, sequence] = await Promise.all([
     carbon.getCustomerByEmail(email),
-    carbon.getNextSequence("quote"),
+    carbon.getNextSequence("quote")
   ]); // Replace with actual email from form
 
   if (customer.error) {
-    return json(
+    return data(
       {
         success: false,
         message: "Failed to get customer from email",
-        data: null,
+        data: null
       },
       { status: 500 }
     );
   }
 
   if (sequence.error) {
-    return json(
+    return data(
       {
         success: false,
         message: "Failed to get next sequence",
-        data: null,
+        data: null
       },
       { status: 500 }
     );
@@ -69,16 +74,16 @@ export async function action({ request }: ActionFunctionArgs) {
     quoteId,
     customerId: customer.data.id,
     currencyCode: "USD",
-    createdBy: "system",
+    createdBy: "system"
   });
 
   if (quoteInsert.error || !quoteInsert.data) {
     console.error(quoteInsert.error);
-    return json(
+    return data(
       {
         success: false,
         message: "Failed to create quote",
-        data: null,
+        data: null
       },
       { status: 500 }
     );
@@ -88,7 +93,7 @@ export async function action({ request }: ActionFunctionArgs) {
     width,
     height,
     length,
-    material,
+    material
   };
 
   const quoteLineInsert = await carbon.upsertQuoteLine({
@@ -98,16 +103,16 @@ export async function action({ request }: ActionFunctionArgs) {
     methodType: "Make",
     unitOfMeasureCode: "EA",
     quantity: [1, 25, 50, 100],
-    configuration,
+    configuration
   });
 
   if (quoteLineInsert.error || !quoteLineInsert.data) {
     console.error(quoteLineInsert.error);
-    return json(
+    return data(
       {
         success: false,
         message: "Failed to create quote line",
-        data: null,
+        data: null
       },
       { status: 500 }
     );
@@ -117,29 +122,29 @@ export async function action({ request }: ActionFunctionArgs) {
     quoteId: quoteInsert.data.id,
     quoteLineId: quoteLineInsert.data.id,
     itemId: CONFIGURED_ITEM_ID,
-    configuration,
+    configuration
   });
 
   if (upsertMethod.error) {
     console.error(upsertMethod.error);
-    return json(
+    return data(
       {
         success: false,
         message: "Failed to create quote line method",
-        data: null,
+        data: null
       },
       { status: 500 }
     );
   }
 
-  return json({
+  return {
     success: true,
     message: `Quote created: ${quoteInsert.data.quoteId}`,
     data: {
       quoteId: quoteInsert.data.quoteId,
-      id: quoteInsert.data.id,
-    },
-  });
+      id: quoteInsert.data.id
+    }
+  };
 }
 
 export default function Route() {
@@ -179,12 +184,12 @@ export default function Route() {
                 label="Material"
                 options={["Steel", "Aluminum", "Copper"].map((material) => ({
                   label: material,
-                  value: material,
+                  value: material
                 }))}
               />
-              <Number name="height" label="Height" />
-              <Number name="width" label="Width" />
-              <Number name="length" label="Length" />
+              <NumberInput name="height" label="Height" />
+              <NumberInput name="width" label="Width" />
+              <NumberInput name="length" label="Length" />
             </div>
 
             <Button

@@ -1,3 +1,7 @@
+import { error } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import { Submit, ValidatedForm, validator } from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -11,15 +15,9 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
-
-import { error } from "@carbon/auth";
-import { requirePermissions } from "@carbon/auth/auth.server";
-import { flash } from "@carbon/auth/session.server";
-import { Submit, ValidatedForm, validator } from "@carbon/form";
-import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useEffect } from "react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useFetcher, useLoaderData } from "react-router";
 import { z } from "zod/v3";
 import { Users } from "~/components/Form";
 import { getCompanySettings } from "~/modules/settings";
@@ -50,7 +48,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         error(companySettings.error, "Failed to get company settings")
       )
     );
-  return json({ companySettings: companySettings.data });
+  return { companySettings: companySettings.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -64,7 +62,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return json({ success: false, message: "Invalid form data" });
+    return { success: false, message: "Invalid form data" };
   }
 
   const update = await client
@@ -75,13 +73,12 @@ export async function action({ request }: ActionFunctionArgs) {
     })
     .eq("id", companyId);
 
-  if (update.error)
-    return json({ success: false, message: update.error.message });
+  if (update.error) return { success: false, message: update.error.message };
 
-  return json({
+  return {
     success: true,
     message: "Gauge calibration notification settings updated"
-  });
+  };
 }
 
 export default function QualitySettingsRoute() {

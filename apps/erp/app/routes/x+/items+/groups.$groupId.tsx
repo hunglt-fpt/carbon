@@ -2,9 +2,8 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useLoaderData, useNavigate } from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data, redirect, useLoaderData, useNavigate } from "react-router";
 import {
   getItemPostingGroup,
   itemPostingGroupValidator,
@@ -25,9 +24,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const itemPostingGroup = await getItemPostingGroup(client, groupId);
 
-  return json({
+  return {
     itemPostingGroup: itemPostingGroup?.data ?? null
-  });
+  };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -56,7 +55,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   if (updateItemPostingGroup.error) {
-    return json(
+    return data(
       {},
       await flash(
         request,

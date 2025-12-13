@@ -1,7 +1,9 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import type { ClientLoaderFunctionArgs } from "@remix-run/react";
-import type { LoaderFunctionArgs, SerializeFrom } from "@vercel/remix";
-import { json } from "@vercel/remix";
+import type {
+  ClientLoaderFunctionArgs,
+  LoaderFunctionArgs,
+  SerializeFrom
+} from "react-router";
 import { getAbilitiesList } from "~/modules/resources";
 import { abilitiesQuery, getCompanyId } from "~/utils/react-query";
 
@@ -10,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "people"
   });
 
-  return json(await getAbilitiesList(client, companyId));
+  return await getAbilitiesList(client, companyId);
 }
 
 export async function clientLoader({ serverLoader }: ClientLoaderFunctionArgs) {

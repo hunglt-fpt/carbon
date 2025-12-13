@@ -3,8 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { modelThumbnailTask } from "@carbon/jobs/trigger/model-thumbnail";
 import { tasks } from "@trigger.dev/sdk";
-import { json, redirect, type ActionFunctionArgs } from "@vercel/remix";
 import { nanoid } from "nanoid";
+import { type ActionFunctionArgs, redirect } from "react-router";
 import { salesRfqDragValidator, upsertSalesRFQLine } from "~/modules/sales";
 import { setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
@@ -25,9 +25,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const validation = salesRfqDragValidator.safeParse(JSON.parse(payload));
 
   if (!validation.success) {
-    return json({
+    return {
       error: validation.error.message
-    });
+    };
   }
 
   const {
@@ -149,5 +149,5 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
   }
 
-  return json({ success: true });
+  return { success: true };
 }

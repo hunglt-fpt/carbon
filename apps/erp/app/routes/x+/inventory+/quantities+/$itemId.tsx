@@ -7,9 +7,8 @@ import {
   ScrollArea,
   VStack
 } from "@carbon/react";
-import { Outlet, useLoaderData } from "@remix-run/react";
-import type { LoaderFunctionArgs } from "@vercel/remix";
-import { json, redirect } from "@vercel/remix";
+import type { LoaderFunctionArgs } from "react-router";
+import { Outlet, redirect, useLoaderData } from "react-router";
 import InventoryItemHeader from "~/modules/inventory/ui/Inventory/InventoryItemHeader";
 import { getItem, getPickMethod, upsertPickMethod } from "~/modules/items";
 import { getLocationsList } from "~/modules/resources";
@@ -96,10 +95,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return json({
+  return {
     pickMethod: pickMethod.data,
     item: item.data
-  });
+  };
 }
 
 export default function ItemInventoryRoute() {

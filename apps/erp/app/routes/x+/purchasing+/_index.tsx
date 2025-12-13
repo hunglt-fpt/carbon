@@ -42,8 +42,6 @@ import {
 } from "@internationalized/date";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { DateRange } from "@react-types/datepicker";
-import { Await, Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { defer, type LoaderFunctionArgs } from "@vercel/remix";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { CSVLink } from "react-csv";
 import {
@@ -55,6 +53,13 @@ import {
   LuLayoutList,
   LuPackageSearch
 } from "react-icons/lu";
+import {
+  Await,
+  Link,
+  type LoaderFunctionArgs,
+  useFetcher,
+  useLoaderData
+} from "react-router";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Empty, Hyperlink, SupplierAvatar } from "~/components";
 import { useUser } from "~/hooks";
@@ -127,12 +132,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
         .limit(10)
     ]);
 
-  return defer({
+  return {
     openPurchaseOrders: openPurchaseOrders,
     openSupplierQuotes: openSupplierQuotes,
     openPurchaseInvoices: openPurchaseInvoices,
     assignedToMe: getPurchasingDocumentsAssignedToMe(client, userId, companyId)
-  });
+  };
 }
 
 export default function PurchaseDashboard() {
