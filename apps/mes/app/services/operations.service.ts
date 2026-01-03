@@ -191,11 +191,25 @@ export async function getJobByOperationId(
     .single();
 }
 
+const getItemFiles = async (
+  client: SupabaseClient<Database>,
+  companyId: string,
+  items: Array<{ itemId: string }>
+) => {
+  const elems = items.map((el) =>
+    client.storage.from("private").list(`${companyId}/parts/${el.itemId}`)
+  );
+
+  const results = await Promise.all(elems);
+
+  return results.flatMap((res) => res.data ?? []);
+};
+
 export async function getJobFiles(
   client: SupabaseClient<Database>,
   companyId: string,
   job: Job,
-  itemId: string
+  items: Array<{ itemId: string }>
 ): Promise<StorageItem[]> {
   if (job.salesOrderLineId || job.quoteLineId) {
     const opportunityLine = job.salesOrderLineId || job.quoteLineId;
@@ -205,7 +219,7 @@ export async function getJobFiles(
         .from("private")
         .list(`${companyId}/opportunity-line/${opportunityLine}`),
       client.storage.from("private").list(`${companyId}/job/${job.id}`),
-      client.storage.from("private").list(`${companyId}/parts/${itemId}`)
+      getItemFiles(client, companyId, items)
     ]);
 
     // Combine and return both sets of files
@@ -215,17 +229,17 @@ export async function getJobFiles(
         bucket: "opportunity-line"
       })) || []),
       ...(jobFiles.data?.map((f) => ({ ...f, bucket: "job" })) || []),
-      ...(itemFiles.data?.map((f) => ({ ...f, bucket: "parts" })) || [])
+      ...(itemFiles.map((f) => ({ ...f, bucket: "parts" })) || [])
     ];
   } else {
     const [jobFiles, itemFiles] = await Promise.all([
       client.storage.from("private").list(`${companyId}/job/${job.id}`),
-      client.storage.from("private").list(`${companyId}/parts/${itemId}`)
+      getItemFiles(client, companyId, items)
     ]);
 
     return [
       ...(jobFiles.data?.map((f) => ({ ...f, bucket: "job" })) || []),
-      ...(itemFiles.data?.map((f) => ({ ...f, bucket: "parts" })) || [])
+      ...(itemFiles.map((f) => ({ ...f, bucket: "parts" })) || [])
     ];
   }
 }
