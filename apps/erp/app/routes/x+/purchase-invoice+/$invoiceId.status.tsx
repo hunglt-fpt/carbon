@@ -3,7 +3,10 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { updatePurchaseInvoiceStatus } from "~/modules/invoicing";
+import {
+  getPurchaseInvoice,
+  updatePurchaseInvoiceStatus
+} from "~/modules/invoicing";
 import { purchaseInvoiceStatusType } from "~/modules/invoicing/invoicing.models";
 import { path, requestReferrer } from "~/utils/path";
 
@@ -25,6 +28,31 @@ export async function action({ request, params }: ActionFunctionArgs) {
     throw redirect(
       path.to.purchaseInvoiceDetails(id),
       await flash(request, error(null, "Invalid status"))
+    );
+  }
+
+  const invoice = await getPurchaseInvoice(client, id);
+
+  if (invoice.error || !invoice.data) {
+    throw redirect(
+      requestReferrer(request) ?? path.to.purchaseInvoiceDetails(id),
+      await flash(
+        request,
+        error(invoice.error, "Failed to get purchase invoice")
+      )
+    );
+  }
+
+  if (!invoice.data.postingDate) {
+    throw redirect(
+      requestReferrer(request) ?? path.to.purchaseInvoiceDetails(id),
+      await flash(
+        request,
+        error(
+          null,
+          "Cannot update status of draft purchase invoice. Please post the invoice first."
+        )
+      )
     );
   }
 
