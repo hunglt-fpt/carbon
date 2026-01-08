@@ -81,7 +81,7 @@ const ItemNotes = ({
         </CardHeader>
 
         <CardContent>
-          {permissions.can("update", "sales") ? (
+          {permissions.can("update", "parts") ? (
             <Editor
               initialValue={(notes ?? {}) as JSONContent}
               onUpload={onUploadImage}
