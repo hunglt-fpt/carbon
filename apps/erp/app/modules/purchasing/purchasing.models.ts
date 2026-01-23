@@ -50,6 +50,7 @@ export const purchaseOrderTypeType = [
 export const purchaseOrderStatusType = [
   "Draft",
   "Planned",
+  "Needs Approval",
   "To Review",
   "To Receive",
   "To Receive and Invoice",

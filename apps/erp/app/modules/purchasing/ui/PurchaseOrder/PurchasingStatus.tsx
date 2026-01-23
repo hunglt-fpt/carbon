@@ -12,6 +12,8 @@ const PurchasingStatus = ({ status }: PurchasingStatusProps) => {
     case "Planned":
     case "To Review":
       return <Status color="yellow">{status}</Status>;
+    case "Needs Approval":
+      return <Status color="orange">{status}</Status>;
     case "To Receive":
     case "To Receive and Invoice":
       return <Status color="orange">{status}</Status>;

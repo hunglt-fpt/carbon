@@ -9,12 +9,19 @@ import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
 import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend"; // Assuming you have a sendEmail task defined
+import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
 import { tasks } from "@trigger.dev/sdk";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
+import {
+  createApprovalRequest,
+  getApprovalRuleByAmount,
+  hasPendingApproval,
+  isApprovalRequired
+} from "~/modules/approvals";
 import { upsertDocument } from "~/modules/documents";
 import { runMRP } from "~/modules/production/production.service";
 import {
@@ -23,7 +30,8 @@ import {
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
   getSupplierContact,
-  purchaseOrderFinalizeValidator
+  purchaseOrderFinalizeValidator,
+  updatePurchaseOrderStatus
 } from "~/modules/purchasing";
 import { getCompany, getCompanySettings } from "~/modules/settings";
 import { getUser } from "~/modules/users/users.server";
@@ -46,28 +54,11 @@ export async function action(args: ActionFunctionArgs) {
   let file: ArrayBuffer;
   let fileName: string;
 
-  const finalize = await finalizePurchaseOrder(client, orderId, userId);
-  if (finalize.error) {
-    throw redirect(
-      path.to.purchaseOrder(orderId),
-      await flash(
-        request,
-        error(finalize.error, "Failed to finalize purchase order")
-      )
-    );
-  }
-
   const serviceRole = getCarbonServiceRole();
 
-  const [purchaseOrder] = await Promise.all([
-    getPurchaseOrder(serviceRole, orderId),
-    runMRP(serviceRole, {
-      type: "purchaseOrder",
-      id: orderId,
-      companyId,
-      userId
-    })
-  ]);
+  // Get purchase order first to check if approval is required
+  // This allows us to set status to "Needs Approval" directly if needed
+  const purchaseOrder = await getPurchaseOrder(serviceRole, orderId);
   if (purchaseOrder.error) {
     throw redirect(
       path.to.purchaseOrder(orderId),
@@ -86,6 +77,114 @@ export async function action(args: ActionFunctionArgs) {
         error("You are not authorized to finalize this purchase order")
       )
     );
+  }
+
+  const orderAmount = purchaseOrder.data.orderTotal ?? 0;
+  const approvalRequired = await isApprovalRequired(
+    serviceRole,
+    "purchaseOrder",
+    companyId,
+    orderAmount
+  );
+
+  // If approval is required, we'll set status to "Needs Approval" after finalizing
+  // Otherwise, finalizePurchaseOrder will set the calculated status
+  const shouldSetNeedsApproval =
+    approvalRequired && purchaseOrder.data.status !== "Planned";
+
+  // Finalize the purchase order (sets orderDate, updatedAt, etc.)
+  // If approval is not required, it will also set the calculated status
+  // If approval is required, we'll override the status to "Needs Approval" below
+  const finalize = await finalizePurchaseOrder(client, orderId, userId);
+  if (finalize.error) {
+    throw redirect(
+      path.to.purchaseOrder(orderId),
+      await flash(
+        request,
+        error(finalize.error, "Failed to finalize purchase order")
+      )
+    );
+  }
+
+  // Run MRP in parallel with approval check
+  await runMRP(serviceRole, {
+    type: "purchaseOrder",
+    id: orderId,
+    companyId,
+    userId
+  });
+
+  if (shouldSetNeedsApproval) {
+    const hasPending = await hasPendingApproval(
+      serviceRole,
+      "purchaseOrder",
+      orderId
+    );
+
+    if (!hasPending) {
+      const config = await getApprovalRuleByAmount(
+        serviceRole,
+        "purchaseOrder",
+        companyId,
+        orderAmount
+      );
+
+      const approvalResult = await createApprovalRequest(serviceRole, {
+        documentType: "purchaseOrder",
+        documentId: orderId,
+        companyId,
+        requestedBy: userId,
+        createdBy: userId,
+        amount: orderAmount,
+        approverGroupIds: config.data?.approverGroupIds || undefined,
+        approverId: config.data?.defaultApproverId || undefined
+      });
+
+      if (!approvalResult.error && approvalResult.data) {
+        // Set status to "Needs Approval" immediately after finalizing
+        // This ensures the flow is: Draft → Finalize → Needs Approval (not Draft → Finalize → To Receive and Invoice → Needs Approval)
+        await updatePurchaseOrderStatus(client, {
+          id: orderId,
+          status: "Needs Approval",
+          assignee: undefined,
+          updatedBy: userId
+        });
+
+        // Notify approvers
+        let notifyRecipient:
+          | { type: "group"; groupIds: string[] }
+          | { type: "user"; userId: string }
+          | null = null;
+        if (
+          config.data?.approverGroupIds &&
+          config.data.approverGroupIds.length > 0
+        ) {
+          notifyRecipient = {
+            type: "group",
+            groupIds: config.data.approverGroupIds
+          };
+        } else if (config.data?.defaultApproverId) {
+          notifyRecipient = {
+            type: "user",
+            userId: config.data.defaultApproverId
+          };
+        }
+
+        if (notifyRecipient) {
+          try {
+            await tasks.trigger("notify", {
+              event: NotificationEvent.ApprovalRequested,
+              companyId,
+              documentId: approvalResult.data.id,
+              recipient: notifyRecipient,
+              from: userId
+            });
+          } catch (err) {
+            console.error("Failed to notify approvers", err);
+          }
+        }
+      }
+    }
   }
 
   // Check if we should update prices on purchase order finalize
