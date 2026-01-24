@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 const API_ENDPOINT = "https://api.novu.co/v1";
 
 export enum NotificationWorkflow {
+  Approval = "approval",
   Assignment = "assignment",
   DigitalQuoteResponse = "digital-quote-response",
   Expiration = "expiration",
@@ -14,6 +15,9 @@ export enum NotificationWorkflow {
 }
 
 export enum NotificationEvent {
+  ApprovalRequested = "approval-requested",
+  ApprovalApproved = "approval-approved",
+  ApprovalRejected = "approval-rejected",
   DigitalQuoteResponse = "digital-quote-response",
   GaugeCalibrationExpired = "gauge-calibration-expired",
   JobAssignment = "job-assignment",
@@ -40,6 +44,7 @@ export enum NotificationEvent {
 }
 
 export enum NotificationType {
+  ApprovalInApp = "approval-in-app",
   AssignmentInApp = "assignment-in-app",
   DigitalQuoteResponseInApp = "digital-quote-response-in-app",
   JobCompletedInApp = "job-completed-in-app",
