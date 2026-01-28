@@ -67,8 +67,8 @@ const ApprovalRuleCard = memo(
         <Card className="p-0 border">
           <Accordion type="multiple" className="w-full">
             <AccordionItem value={rule.id} className="border-none">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <div className="flex items-center justify-between w-full pr-4">
+              <div className="relative">
+                <AccordionTrigger className="px-6 py-4 hover:no-underline w-full">
                   <HStack spacing={4} className="flex-1">
                     <Badge
                       variant={rule.enabled ? "green" : "gray"}
@@ -86,6 +86,8 @@ const ApprovalRuleCard = memo(
                       </span>
                     )}
                   </HStack>
+                </AccordionTrigger>
+                <div className="absolute right-12 top-1/2 -translate-y-1/2 z-10">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <IconButton
@@ -121,7 +123,7 @@ const ApprovalRuleCard = memo(
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </AccordionTrigger>
+              </div>
               <AccordionContent className="px-6 pb-5">
                 <ApprovalRuleDetails
                   rule={rule}
