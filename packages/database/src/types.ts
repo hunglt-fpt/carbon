@@ -1694,6 +1694,7 @@ export type Database = {
       }
       approvalRequest: {
         Row: {
+          amount: number | null
           approverId: string | null
           companyId: string
           createdAt: string
@@ -1711,6 +1712,7 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
+          amount?: number | null
           approverId?: string | null
           companyId: string
           createdAt?: string
@@ -1728,6 +1730,7 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
+          amount?: number | null
           approverId?: string | null
           companyId?: string
           createdAt?: string

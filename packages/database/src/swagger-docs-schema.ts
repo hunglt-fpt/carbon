@@ -38809,6 +38809,9 @@ export default {
             $ref: "#/parameters/rowFilter.approvalRequest.status",
           },
           {
+            $ref: "#/parameters/rowFilter.approvalRequest.amount",
+          },
+          {
             $ref: "#/parameters/rowFilter.approvalRequest.requestedBy",
           },
           {
@@ -38913,6 +38916,9 @@ export default {
             $ref: "#/parameters/rowFilter.approvalRequest.status",
           },
           {
+            $ref: "#/parameters/rowFilter.approvalRequest.amount",
+          },
+          {
             $ref: "#/parameters/rowFilter.approvalRequest.requestedBy",
           },
           {
@@ -38969,6 +38975,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.approvalRequest.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.approvalRequest.amount",
           },
           {
             $ref: "#/parameters/rowFilter.approvalRequest.requestedBy",
@@ -83478,6 +83487,10 @@ export default {
           format: 'public."approvalStatus"',
           type: "string",
         },
+        amount: {
+          format: "numeric",
+          type: "number",
+        },
         requestedBy: {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
@@ -114888,6 +114901,12 @@ export default {
     },
     "rowFilter.approvalRequest.status": {
       name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.approvalRequest.amount": {
+      name: "amount",
       required: false,
       in: "query",
       type: "string",
