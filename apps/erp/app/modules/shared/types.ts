@@ -55,6 +55,8 @@ export type ApprovalRule = NonNullable<
   Awaited<ReturnType<typeof getApprovalRuleByAmount>>["data"]
 >;
 
+export type ApprovalDecision = "Approved" | "Rejected";
+
 export type ApprovalStatus = Database["public"]["Enums"]["approvalStatus"];
 
 export type BillOfMaterialNodeType =
