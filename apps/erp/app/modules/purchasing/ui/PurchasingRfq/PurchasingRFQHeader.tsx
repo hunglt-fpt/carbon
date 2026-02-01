@@ -1,5 +1,3 @@
-import { useCarbon } from "@carbon/auth";
-import { Select, Submit, ValidatedForm } from "@carbon/form";
 import {
   Alert,
   AlertDescription,
@@ -17,16 +15,11 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalDescription,
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  toast,
-  useDisclosure,
-  useMount,
-  VStack
+  useDisclosure
 } from "@carbon/react";
-import { useState } from "react";
 import {
   LuChevronDown,
   LuCircleX,
@@ -41,13 +34,10 @@ import {
   LuTrash,
   LuTriangleAlert
 } from "react-icons/lu";
-import type { FetcherWithComponents } from "react-router";
 import { Link, useFetcher, useParams } from "react-router";
-import { z } from "zod";
-import { zfd } from "zod-form-data";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import { useIntegrations } from "~/hooks/useIntegrations";
 import { path } from "~/utils/path";
 import type { PurchasingRFQ, PurchasingRFQLine } from "../../types";
@@ -256,13 +246,8 @@ const PurchasingRFQHeader = () => {
           <Button
             onClick={cancelReasonModal.onOpen}
             isDisabled={
-              status !== "Draft" ||
-              statusFetcher.state !== "idle" ||
+              (status !== "Draft" && status !== "Requested") ||
               !permissions.can("update", "purchasing")
-            }
-            isLoading={
-              statusFetcher.state !== "idle" &&
-              statusFetcher.formData?.get("status") === "Closed"
             }
             leftIcon={<LuCircleX />}
             variant="secondary"
@@ -323,10 +308,18 @@ const PurchasingRFQHeader = () => {
         <RequiresSuppliersAlert onClose={requiresSuppliersAlert.onClose} />
       )}
       {cancelReasonModal.isOpen && (
-        <CancelReasonModal
-          fetcher={statusFetcher}
-          rfqId={rfqId}
-          onClose={cancelReasonModal.onClose}
+        <ConfirmDelete
+          action={path.to.cancelPurchasingRfq(rfqId)}
+          isOpen={cancelReasonModal.isOpen}
+          name={routeData?.rfqSummary?.rfqId!}
+          text={`Are you sure you want to cancel ${routeData?.rfqSummary?.rfqId!}? This will also cancel all related supplier quotes.`}
+          deleteText="Cancel"
+          onCancel={() => {
+            cancelReasonModal.onClose();
+          }}
+          onSubmit={() => {
+            cancelReasonModal.onClose();
+          }}
         />
       )}
       {deleteRFQModal.isOpen && (
@@ -356,89 +349,6 @@ const PurchasingRFQHeader = () => {
 };
 
 export default PurchasingRFQHeader;
-
-const rfqCancelReasonValidator = z.object({
-  status: z.enum(["Closed"]),
-  noQuoteReasonId: zfd.text(z.string().optional())
-});
-
-function CancelReasonModal({
-  fetcher,
-  rfqId,
-  onClose
-}: {
-  fetcher: FetcherWithComponents<{}>;
-  rfqId: string;
-  onClose: () => void;
-}) {
-  const user = useUser();
-  const [cancelReasons, setCancelReasons] = useState<
-    {
-      label: string;
-      value: string;
-    }[]
-  >([]);
-  const { carbon } = useCarbon();
-  const fetchReasons = async () => {
-    if (!carbon) return;
-    const { data, error } = await carbon
-      .from("noQuoteReason")
-      .select("*")
-      .eq("companyId", user.company.id);
-
-    if (error) {
-      toast.error("Failed to load cancel reasons");
-      return;
-    }
-
-    setCancelReasons(
-      data?.map((reason) => ({ label: reason.name, value: reason.id })) ?? []
-    );
-  };
-
-  useMount(() => {
-    fetchReasons();
-  });
-
-  return (
-    <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalContent>
-        <ValidatedForm
-          method="post"
-          action={path.to.purchasingRfqStatus(rfqId)}
-          validator={rfqCancelReasonValidator}
-          fetcher={fetcher}
-          onSubmit={() => {
-            onClose();
-          }}
-        >
-          <ModalHeader>
-            <ModalTitle>Cancel RFQ</ModalTitle>
-            <ModalDescription>
-              Select a reason for cancelling this RFQ.
-            </ModalDescription>
-          </ModalHeader>
-          <ModalBody>
-            <input type="hidden" name="status" value="Closed" />
-            <VStack spacing={2}>
-              <Select
-                name="noQuoteReasonId"
-                label="Cancel Reason"
-                options={cancelReasons}
-              />
-            </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="secondary" onClick={onClose}>
-              Back
-            </Button>
-            <Submit withBlocker={false}>Cancel RFQ</Submit>
-          </ModalFooter>
-        </ValidatedForm>
-      </ModalContent>
-    </Modal>
-  );
-}
 
 function RequiresSuppliersAlert({ onClose }: { onClose: () => void }) {
   return (

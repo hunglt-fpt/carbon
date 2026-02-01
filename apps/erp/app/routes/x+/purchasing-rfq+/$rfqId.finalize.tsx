@@ -3,6 +3,8 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { tiptapToHTML } from "@carbon/utils";
+import type { JSONContent } from "@tiptap/react";
 import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -11,6 +13,8 @@ import {
   getPurchasingRFQLines,
   getPurchasingRFQSuppliers,
   getSupplierContact,
+  getSupplierInteractionDocuments,
+  getSupplierInteractionLineDocuments,
   purchasingRfqFinalizeValidator,
   updatePurchasingRFQStatus,
   upsertSupplierQuote,
@@ -221,10 +225,59 @@ export async function action({ request, params }: ActionFunctionArgs) {
     updatedBy: userId
   });
 
-  console.log("emailsToSend", emailsToSend);
-
   // Send emails if we have any contacts (using same format as supplier quote send)
   if (emailsToSend.length > 0 && company.data && user.data) {
+    // Build attachments: RFQ-level documents + line-level documents
+    const attachments: Array<{ filename: string; content: string }> = [];
+
+    // Fetch RFQ-level supplier interaction documents
+    const rfqDocs = await getSupplierInteractionDocuments(
+      client,
+      companyId,
+      rfqId
+    );
+
+    for (const doc of rfqDocs) {
+      const { data: fileData } = await client.storage
+        .from("private")
+        .download(`${companyId}/supplier-interaction/${rfqId}/${doc.name}`);
+
+      if (fileData) {
+        const arrayBuffer = await fileData.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString("base64");
+        attachments.push({ filename: doc.name, content: base64 });
+      }
+    }
+
+    // Fetch line-level supplier interaction documents
+    for (const line of lines) {
+      if (!line.id) continue;
+
+      const lineDocs = await getSupplierInteractionLineDocuments(
+        client,
+        companyId,
+        line.id
+      );
+
+      for (const doc of lineDocs) {
+        const { data: fileData } = await client.storage
+          .from("private")
+          .download(
+            `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
+          );
+
+        if (fileData) {
+          const arrayBuffer = await fileData.arrayBuffer();
+          const base64 = Buffer.from(arrayBuffer).toString("base64");
+          attachments.push({ filename: doc.name, content: base64 });
+        }
+      }
+    }
+
+    // Convert internal notes to HTML
+    const internalNotes = (rfqResult.data?.internalNotes ?? {}) as JSONContent;
+    const notesHtml = tiptapToHTML(internalNotes);
+
     for (const email of emailsToSend) {
       try {
         const externalQuoteUrl = `${baseUrl}${path.to.externalSupplierQuote(email.externalLinkId)}`;
@@ -232,12 +285,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
         const emailBody = `Hey ${email.contactFirstName},\n\nPlease provide pricing and lead time(s) for the linked quote:`;
         const emailSignature = `Thanks,\n${user.data.firstName} ${user.data.lastName}\n${company.data.name}`;
 
+        const htmlParts = [
+          emailBody.replace(/\n/g, "<br>"),
+          `<br><a href="${externalQuoteUrl}">${externalQuoteUrl}</a>`
+        ];
+
+        if (notesHtml) {
+          htmlParts.push(`<br><br>${notesHtml}`);
+        }
+
+        htmlParts.push(`<br><br>${emailSignature.replace(/\n/g, "<br>")}`);
+
         await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
           to: [user.data.email, email.contactEmail],
           from: user.data.email,
           subject: emailSubject,
-          html: `${emailBody.replace(/\n/g, "<br>")}<br><a href="${externalQuoteUrl}">${externalQuoteUrl}</a><br><br>${emailSignature.replace(/\n/g, "<br>")}`,
+          html: htmlParts.join(""),
           text: `${emailBody}\n\n${externalQuoteUrl}\n\n${emailSignature}`,
+          attachments,
           companyId
         });
       } catch (err) {

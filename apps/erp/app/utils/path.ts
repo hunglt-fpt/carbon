@@ -1424,6 +1424,8 @@ export const path = {
     purchasingRfqRoot: `${x}/purchasing-rfq`,
     purchasingRfqStatus: (id: string) =>
       generatePath(`${x}/purchasing-rfq/${id}/status`),
+    cancelPurchasingRfq: (id: string) =>
+      generatePath(`${x}/purchasing-rfq/${id}/cancel`),
     purchasingRfqFinalize: (id: string) =>
       generatePath(`${x}/purchasing-rfq/${id}/finalize`),
     purchasingRfqs: `${x}/purchasing/rfqs`,

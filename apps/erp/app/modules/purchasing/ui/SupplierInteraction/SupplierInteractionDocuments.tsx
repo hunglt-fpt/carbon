@@ -42,7 +42,7 @@ type SupplierInteractionDocumentsProps = {
     | "Supplier Quote"
     | "Purchase Order"
     | "Purchase Invoice"
-    | "Purchasing Request For Quote";
+    | "Purchasing Request for Quote";
 };
 
 const SupplierInteractionDocuments = ({
@@ -180,7 +180,7 @@ type SupplierInteractionDocumentFormProps = {
     | "Supplier Quote"
     | "Purchase Order"
     | "Purchase Invoice"
-    | "Purchasing RFQ";
+    | "Purchasing Request for Quote";
 };
 
 export const useSupplierInteractionDocuments = ({

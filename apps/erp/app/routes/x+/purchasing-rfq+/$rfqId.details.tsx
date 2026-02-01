@@ -40,8 +40,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    internalNotes: (rfq.data?.internalNotes ?? {}) as JSONContent,
-    externalNotes: (rfq.data?.externalNotes ?? {}) as JSONContent
+    internalNotes: (rfq.data?.internalNotes ?? {}) as JSONContent
   };
 }
 
@@ -95,7 +94,7 @@ type LinkedSupplierQuote = {
 };
 
 export default function PurchasingRFQDetailsRoute() {
-  const { internalNotes, externalNotes } = useLoaderData<typeof loader>();
+  const { internalNotes } = useLoaderData<typeof loader>();
   const { rfqId } = useParams();
   if (!rfqId) throw new Error("Could not find rfqId");
 
@@ -124,7 +123,6 @@ export default function PurchasingRFQDetailsRoute() {
         table="purchasingRfq"
         title="Notes"
         internalNotes={internalNotes}
-        externalNotes={externalNotes}
       />
       <Suspense
         key={`documents-${rfqId}`}
@@ -140,7 +138,7 @@ export default function PurchasingRFQDetailsRoute() {
               interactionId={rfqId}
               attachments={resolvedFiles}
               id={rfqId}
-              type="Purchasing RFQ"
+              type="Purchasing Request for Quote"
             />
           )}
         </Await>

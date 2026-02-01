@@ -1,12 +1,4 @@
-import {
-  HStack,
-  MenuIcon,
-  MenuItem,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  useDisclosure
-} from "@carbon/react";
+import { HStack, MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
@@ -26,7 +18,7 @@ import { Enumerable } from "~/components/Enumerable";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
-import { usePeople } from "~/stores";
+import { usePeople, useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
 import { purchasingRfqStatusType } from "../../purchasing.models";
 import type { PurchasingRFQ } from "../../types";
@@ -41,6 +33,7 @@ const PurchasingRFQsTable = memo(
   ({ data, count }: PurchasingRFQsTableProps) => {
     const permissions = usePermissions();
     const navigate = useNavigate();
+    const [suppliers] = useSuppliers();
 
     const [selectedPurchasingRFQ, setSelectedPurchasingRFQ] =
       useState<PurchasingRFQ | null>(null);
@@ -67,37 +60,39 @@ const PurchasingRFQsTable = memo(
           }
         },
         {
-          accessorKey: "supplierNames",
+          accessorKey: "supplierIds",
           header: "Suppliers",
           cell: ({ row }) => {
-            const names = row.original.supplierNames ?? [];
-            if (names.length === 0) {
-              return <span className="text-muted-foreground">—</span>;
-            }
-            if (names.length === 1) {
-              return <span>{names[0]}</span>;
-            }
-            const remaining = names.length - 1;
             return (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="cursor-help">
-                    {names[0]}{" "}
-                    <span className="text-muted-foreground">+{remaining}</span>
+              <div className="flex items-center gap-1">
+                {row.original.supplierIds
+                  ?.slice(0, 2)
+                  .map((supplierId, index) => (
+                    <span key={index} className="text-sm">
+                      {suppliers.find((s) => s.id === supplierId)?.name ?? ""}
+                      {index <
+                        Math.min(row.original.supplierIds?.length ?? 0, 2) -
+                          1 && ","}
+                    </span>
+                  ))}
+                {(row.original.supplierIds?.length ?? 0) > 2 && (
+                  <span className="text-sm text-muted-foreground">
+                    +{(row.original.supplierIds?.length ?? 0) - 2}
                   </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="flex flex-col gap-1">
-                    {names.map((name) => (
-                      <span key={name}>{name}</span>
-                    ))}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+                )}
+              </div>
             );
           },
           meta: {
-            icon: <LuContainer />
+            icon: <LuContainer />,
+            filter: {
+              type: "static",
+              options: suppliers.map((supplier) => ({
+                value: supplier.id,
+                label: <Enumerable value={supplier.name} />
+              })),
+              isArray: true
+            }
           }
         },
         {

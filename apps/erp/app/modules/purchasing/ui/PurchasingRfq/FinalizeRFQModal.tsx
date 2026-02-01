@@ -108,7 +108,9 @@ const FinalizeRFQModal = ({
                     className="w-full p-4 border rounded-lg"
                   >
                     <HStack className="w-full justify-between">
-                      <Heading size="h5">{supplier.supplier.name}</Heading>
+                      <Heading size="h4" as="h3">
+                        {supplier.supplier.name}
+                      </Heading>
                     </HStack>
 
                     <input
