@@ -10,6 +10,8 @@ DROP VIEW IF EXISTS "consumables";
 DROP VIEW IF EXISTS "services";
 DROP VIEW IF EXISTS "salesOrders";
 
+DELETE FROM "externalIntegrationMapping";
+
 -- Migration: Convert all externalId JSONB columns to the externalIntegrationMapping table
 -- Then drop the old columns and indexes.
 --
@@ -54,7 +56,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- supplier
 INSERT INTO "externalIntegrationMapping" (
@@ -81,7 +84,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- contact
 INSERT INTO "externalIntegrationMapping" (
@@ -108,7 +112,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- item
 INSERT INTO "externalIntegrationMapping" (
@@ -135,7 +140,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- part
 INSERT INTO "externalIntegrationMapping" (
@@ -162,7 +168,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- material
 INSERT INTO "externalIntegrationMapping" (
@@ -189,7 +196,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- tool
 INSERT INTO "externalIntegrationMapping" (
@@ -216,7 +224,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- fixture
 INSERT INTO "externalIntegrationMapping" (
@@ -243,7 +252,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- consumable
 INSERT INTO "externalIntegrationMapping" (
@@ -270,7 +280,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- address
 INSERT INTO "externalIntegrationMapping" (
@@ -297,7 +308,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- salesOrder
 INSERT INTO "externalIntegrationMapping" (
@@ -324,7 +336,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- purchaseOrder
 INSERT INTO "externalIntegrationMapping" (
@@ -351,7 +364,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- quote
 INSERT INTO "externalIntegrationMapping" (
@@ -378,7 +392,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- salesInvoice
 INSERT INTO "externalIntegrationMapping" (
@@ -405,7 +420,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- nonConformanceActionTask (JSON type, cast to JSONB)
 INSERT INTO "externalIntegrationMapping" (
@@ -432,7 +448,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- ============================================================================
 -- STEP 2: Migrate tables requiring JOINs for companyId
@@ -464,7 +481,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- supplierLocation (join supplier for companyId)
 INSERT INTO "externalIntegrationMapping" (
@@ -492,7 +510,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- ============================================================================
 -- STEP 3: Migrate special tables
@@ -523,7 +542,8 @@ WHERE t."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- user (many-to-many via userToCompany, one mapping per company membership)
 INSERT INTO "externalIntegrationMapping" (
@@ -551,7 +571,8 @@ WHERE u."externalId" IS NOT NULL
       WHEN jsonb_typeof(kv.value) = 'string' THEN kv.value #>> '{}'
       ELSE kv.value->>'id'
     END
-  ) IS NOT NULL;
+  ) IS NOT NULL
+ON CONFLICT ("entityType", "entityId", "integration", "companyId") DO NOTHING;
 
 -- ============================================================================
 -- STEP 4: Drop old indexes and columns
