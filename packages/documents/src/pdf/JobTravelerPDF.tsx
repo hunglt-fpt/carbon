@@ -117,6 +117,7 @@ const JobHeader = ({
   customer,
   item,
   job,
+  operations,
   methodRevision,
   thumbnail,
   jobOperations
