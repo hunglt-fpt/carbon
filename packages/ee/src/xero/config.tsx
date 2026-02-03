@@ -1,4 +1,4 @@
-import { getCarbonServiceRole, NODE_ENV, XERO_CLIENT_ID } from "@carbon/auth";
+import { getCarbonServiceRole, XERO_CLIENT_ID } from "@carbon/auth";
 import type { CreateSubscriptionParams } from "@carbon/database/event";
 import {
   createEventSystemSubscription,
@@ -33,7 +33,7 @@ const XeroSettingsSchema = z.object({
 export const Xero = defineIntegration({
   name: "Xero",
   id: "xero",
-  active: NODE_ENV !== "production",
+  active: false,
   category: "Accounting",
   logo: Logo,
   description:
