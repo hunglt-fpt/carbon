@@ -151,12 +151,56 @@ Each of these services has a free tier which should be plenty to support local d
 
 ### Installation
 
+```md
+Dựa trên việc kiểm tra mã nguồn của dự án, câu trả lời ngắn gọn là: Hiện tại các dịch vụ này KHÔNG phải là optional (tùy chọn).  
+  
+Bạn bắt buộc phải cấu hình chúng để dự án có thể khởi động và hoạt động bình thường. Dưới đây là lý do chi tiết:  
+  
+1. Redis (Upstash) - Bắt buộc  
+Dự án sử dụng Redis cho các tác vụ quan trọng như:  
+  
+Quản lý Session & Permissions: Mỗi khi bạn đăng nhập hoặc thực hiện một hành động, hệ thống sẽ kiểm tra quyền trong Redis.  
+Cơ chế bảo vệ: Trong file packages/kv/src/client.ts, mã nguồn có đoạn kiểm tra:  
+if (!UPSTASH_REDIS_REST_URL) {  
+  throw new Error("UPSTASH_REDIS_REST_URL is not defined");  
+}  
+Nếu bạn không điền giá trị này vào .env, ứng dụng sẽ dừng ngay lập tức (crash) và báo lỗi.  
+2. Trigger.dev (Job Runner) - Bắt buộc cho nghiệp vụ  
+Dự án này được thiết kế để xử lý nhiều tác vụ nặng ở chế độ nền (background). Các tính năng cốt lõi sẽ bị lỗi nếu thiếu Trigger.dev:  
+  
+Xác nhận đơn hàng (Sales Order/Purchase Order).  
+Gửi báo giá (Quotes) qua email.  
+Cập nhật quyền người dùng hàng loạt.  
+Webhooks từ các bên thứ ba (Stripe, Slack). Nếu không có TRIGGER_SECRET_KEY, khi bạn nhấn các nút chức năng này trên giao diện, hệ thống sẽ báo lỗi API vì không thể đẩy tác vụ vào hàng đợi.  
+3. Posthog (Analytics) - Có thể coi là Optional (nhưng nên có)  
+Đây là dịch vụ theo dõi hành vi người dùng. Nếu bạn bỏ qua, hệ thống có thể vẫn chạy được các tính năng chính, nhưng bạn có thể thấy các lỗi log (console error) ở trình duyệt khi thư viện tracking cố gắng gửi dữ liệu mà không có key.  
+  
+Lời khuyên cho bạn:  
+Sử dụng Free Tier: Cả 3 dịch vụ trên (Upstash, Trigger.dev, Posthog) đều có gói miễn phí rất rộng rãi, đủ để bạn phát triển local mà không tốn xu nào. Bạn chỉ mất khoảng 5 phút để đăng ký và lấy Key.  
+Nếu bạn tuyệt đối không muốn dùng Cloud:  
+Với Redis: Bạn có thể dựng một container Redis local bằng Docker, nhưng bạn sẽ phải sửa lại code trong packages/kv để chuyển từ dùng @upstash/redis (REST API) sang dùng thư viện ioredis (TCP).  
+Với Trigger.dev: Việc thay thế này rất phức tạp vì nó liên quan đến toàn bộ kiến trúc xử lý sự kiện của dự án.  
+Kết luận: Cách nhanh nhất để trải nghiệm dự án lúc này là dành ít phút đăng ký tài khoản miễn phí cho các dịch vụ trên và điền vào file .env. Nếu bạn cần hướng dẫn lấy key ở dịch vụ nào, hãy cho tôi biết!
+```
+
 First download and initialize the repository dependencies.
 
 ```bash
 $ nvm use           # use node v20
 $ npm install       # install dependencies
 $ npm run db:start  # pull and run the containers
+```
+```
+Bước A: Chuẩn bị trên Supabase Cloud  
+Bước B: Cấu hình file .env  
+Bước C: Đẩy Schema lên Cloud (Migration)  
+Vì database trên Cloud của bạn đang trống, bạn cần đẩy cấu trúc bảng của dự án lên đó. Thay vì chạy npm run db:start, bạn làm như sau:  
+  
+Link dự án:  
+npx supabase link --project-ref <your-project-id>  
+(Hệ thống sẽ hỏi mật khẩu database bạn đã đặt khi tạo project trên Cloud)  
+Push database:  
+npx supabase db push  
 ```
 
 Create an `.env` file and copy the contents of `.env.example` file into it
