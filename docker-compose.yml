@@ -1,0 +1,42 @@
+services:
+  # db:
+  #   image: postgres:16 # Use a recent, stable PostgreSQL image
+  #   environment:
+  #     POSTGRES_DB: odoo_db
+  #     POSTGRES_USER: odoo
+  #     POSTGRES_PASSWORD: your_strong_db_password # Change this!
+  #   volumes:
+  #     - ./postgresql:/var/lib/postgresql/data
+  #   networks:
+  #     - odoo-network
+  #   restart: unless-stopped
+
+  odoo:
+    image: odoo:17 # Use the desired Odoo version, e.g., 17, 18
+    depends_on:
+      - db
+    ports:
+      - "8069:8069" # Maps host port 8069 to container port 8069 (web interface)
+      - "8072:8072" # Maps host port 8072 to container port 8072 (live chat)
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: your_strong_db_password # Must match the PostgreSQL password
+    volumes:
+      - ./config:/etc/odoo # Mounts a custom configuration file if needed
+      - ./addons:/mnt/extra-addons # Mounts a directory for custom modules
+    networks:
+      - odoo-network
+    restart: unless-stopped
+
+networks:
+  odoo-network:
+    driver: bridge
+
+# ERPNext:
+# websocket service
+# Vai trò: Xử lý kết nối thời gian thực (Real-time).
+# Hành động: Giúp hệ thống tự động cập nhật thông báo, trạng thái mà bạn không cần phải load lại trang (F5). Nó chạy bằng Node.js.
+
+# Odoo Core:
+# Xử lý tất cả: backend, frontend, và websocket (long-polling).
